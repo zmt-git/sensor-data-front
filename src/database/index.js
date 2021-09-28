@@ -3,27 +3,27 @@
  * @Author: zmt
  * @Date: 2021-09-28 09:56:26
  * @LastEditors: zmt
- * @LastEditTime: 2021-09-28 15:13:59
+ * @LastEditTime: 2021-09-28 16:48:56
  */
 import { connectMySQL, queryMySQL, closeMySQL } from './mysql'
 import { connectSQLite, querySQLite, closeSQLite } from './sqlite'
-// import { connectOracle, queryOracle, closeOracle } from './oracle'
+import { connectOracle, queryOracle, closeOracle } from './oracle'
 
 const SQL = {
   connection: {
     MySQL: connectMySQL,
-    SQLite: connectSQLite
-    // Oracle: connectOracle
+    SQLite: connectSQLite,
+    Oracle: connectOracle
   },
   query: {
     MySQL: queryMySQL,
-    SQLite: querySQLite
-    // Oracle: queryOracle
+    SQLite: querySQLite,
+    Oracle: queryOracle
   },
   close: {
     MySQL: closeMySQL,
-    SQLite: closeSQLite
-    // Oracle: closeOracle
+    SQLite: closeSQLite,
+    Oracle: closeOracle
   }
 }
 

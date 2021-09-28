@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-27 13:33:58
  * @LastEditors: zmt
- * @LastEditTime: 2021-09-28 10:23:19
+ * @LastEditTime: 2021-09-28 17:01:06
  */
 import { mysqlConfig } from './config'
 
