@@ -1,0 +1,122 @@
+<!--
+ * @Description: 基础布局
+ * @Author: zmt
+ * @Date: 2021-09-26 11:56:42
+ * @LastEditors: zmt
+ * @LastEditTime: 2021-09-28 16:00:17
+-->
+<template>
+  <div class="d-layout">
+    <d-header></d-header>
+    <section class="d-layout-section">
+      <aside class="d-layout-aside">
+        <div class="d-layout-aside-top">
+          <aside-nav-item @onClick="setValue" :key="item.id" :value="currentDataBase" :nav='item' v-for="item in navList"></aside-nav-item>
+        </div>
+        <div class="d-layout-aside-bottom">
+        </div>
+      </aside>
+
+      <main class="d-layout-content">
+        <template v-if="isLogin">
+          <div class="d-layout-content-inner">
+            MYSQL
+          </div>
+        </template>
+
+        <login-data-base v-else></login-data-base>
+      </main>
+    </section>
+  </div>
+</template>
+
+<script>
+import { navList, iconList } from '@/common/aside'
+import { removeToken } from '@/util/auth/token'
+import { mapGetters } from 'vuex'
+import AsideNavItem from '@/components/AsideNavItem.vue'
+import LoginDataBase from '@/components/LoginDataBase.vue'
+import DHeader from '@/components/Header.vue'
+import { ipcRenderer } from 'electron'
+
+export default {
+  name: 'd-layout',
+
+  components: { AsideNavItem, LoginDataBase, DHeader },
+
+  computed: {
+    ...mapGetters(['Oracle', 'MySQL', 'SQLite', 'currentDataBase']),
+
+    isLogin () {
+      return this[this.currentDataBase]
+    }
+  },
+
+  data () {
+    return {
+      iconValue: '',
+      navList: navList,
+      iconList: iconList
+    }
+  },
+
+  mounted () {
+    ipcRenderer.send('changeSize', 1)
+  },
+
+  methods: {
+    setValue (e) {
+      this.$store.dispatch('actionCurrentDataBase', e.id)
+    },
+
+    onClickIcon (e) {
+      this.iconValue = e.id
+      removeToken()
+      this.$router.push('/login')
+    }
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+@import '~@/styles/handle.scss';
+.d-layout{
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  &-section{
+    flex: 1;
+    width: 100%;
+    display: flex;
+  }
+  &-aside{
+    -webkit-app-region: drag;
+    width: 75px;
+    height: 100%;
+    @include bg-color('aside-bg');
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    &-top{
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      box-sizing: border-box;
+      padding: 5px;
+    }
+    &-bottom{
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      box-sizing: border-box;
+      padding: 5px;
+    }
+  }
+  &-content{
+    flex: 1;
+    height: 100%;
+  }
+}
+</style>
