@@ -1,31 +1,44 @@
 $themes: (
   light: (
+    // common
     color: #000000,
     primary: #409EFF,
     success: #67C23A,
     danger: #F56C6C,
     info: #909399,
     warning: #E6A23C,
-
+    // layout-header
     header-bg: #409EFF,
     info-bg: #ffffff,
     info-color: #303133,
+    // layout-aside
     aside-bg: #F2F6FC,
-    aside-color: #409EFF
+    aside-color: #409EFF,
+    // sql-query
+    sql-query: #F2F6FC,
+    sql-query-active: #fff,
+    sql-aside-color: #303133,
+    sql-aside-active: #f0f0f0
   ),
   dark: (
+    // common
     color: #ffffff,
     primary: #409EFF,
     success: #67C23A,
     danger: #F56C6C,
     info: #909399,
     warning: #E6A23C,
-
+    // layout-header
     header-bg: #303133,
     info-bg: #303133,
     info-color: #fff,
-
+    // layout-aside
     aside-bg: #303133,
-    aside-color: #fff
+    aside-color: #fff,
+    // sql-query
+    sql-query: #303133,
+    sql-query-active: #6d6f74,
+    sql-aside-color: #F2F6FC,
+    sql-aside-active: #fff,
   )
 )

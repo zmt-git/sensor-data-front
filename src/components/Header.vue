@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-27 08:54:37
  * @LastEditors: zmt
- * @LastEditTime: 2021-09-28 16:36:36
+ * @LastEditTime: 2021-09-29 14:46:23
 -->
 <template>
   <header class="d-header" :style="{ backgroundColor: bg }">
@@ -191,6 +191,7 @@ export default {
         @include bg-color('info-bg');
         box-sizing: border-box;
         padding: 5px;
+        z-index: 3000;
         & li{
           font-size: 13px;
           line-height: 40px;

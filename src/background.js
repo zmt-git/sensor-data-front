@@ -1,7 +1,7 @@
 'use strict'
 
 import { app, protocol, BrowserWindow, ipcMain } from 'electron'
-import { connectDatabase } from './database/index'
+import { connectDatabase, queryDatabase } from './database/index'
 
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
@@ -129,5 +129,14 @@ ipcMain.on('connect', async (event, type, from) => {
     mainWindow.webContents.send('connectSuccess', `${type}链接成功`)
   } catch (e) {
     mainWindow.webContents.send('error', e)
+  }
+})
+
+ipcMain.on('query', async (event, type, sign, statement) => {
+  try {
+    const result = await queryDatabase(type, sign, statement)
+    mainWindow.webContents.send('querySuccess', result)
+  } catch (e) {
+    mainWindow.webContents.send('queryError', e)
   }
 })

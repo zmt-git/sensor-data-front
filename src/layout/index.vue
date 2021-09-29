@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-26 11:56:42
  * @LastEditors: zmt
- * @LastEditTime: 2021-09-28 16:00:17
+ * @LastEditTime: 2021-09-29 16:10:42
 -->
 <template>
   <div class="d-layout">
@@ -18,13 +18,7 @@
       </aside>
 
       <main class="d-layout-content">
-        <template v-if="isLogin">
-          <div class="d-layout-content-inner">
-            MYSQL
-          </div>
-        </template>
-
-        <login-data-base v-else></login-data-base>
+        <router-view></router-view>
       </main>
     </section>
   </div>
@@ -35,14 +29,13 @@ import { navList, iconList } from '@/common/aside'
 import { removeToken } from '@/util/auth/token'
 import { mapGetters } from 'vuex'
 import AsideNavItem from '@/components/AsideNavItem.vue'
-import LoginDataBase from '@/components/LoginDataBase.vue'
 import DHeader from '@/components/Header.vue'
 import { ipcRenderer } from 'electron'
 
 export default {
   name: 'd-layout',
 
-  components: { AsideNavItem, LoginDataBase, DHeader },
+  components: { AsideNavItem, DHeader },
 
   computed: {
     ...mapGetters(['Oracle', 'MySQL', 'SQLite', 'currentDataBase']),
@@ -67,6 +60,11 @@ export default {
   methods: {
     setValue (e) {
       this.$store.dispatch('actionCurrentDataBase', e.id)
+      if (this.isLogin) {
+        this.$router.push({ path: '/querySQL', query: { type: e.id } })
+      } else {
+        this.$router.push({ path: '/', query: { type: e.id } })
+      }
     },
 
     onClickIcon (e) {
@@ -89,6 +87,8 @@ export default {
     flex: 1;
     width: 100%;
     display: flex;
+    overflow-x: hidden;
+    overflow-y: auto;
   }
   &-aside{
     -webkit-app-region: drag;
@@ -98,6 +98,7 @@ export default {
     overflow: auto;
     display: flex;
     flex-direction: column;
+    flex-shrink: 0;
     &-top{
       flex: 1;
       display: flex;

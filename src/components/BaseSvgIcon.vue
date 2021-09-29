@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-26 16:08:41
  * @LastEditors: zmt
- * @LastEditTime: 2021-09-27 09:28:27
+ * @LastEditTime: 2021-09-29 10:34:29
 -->
 <template>
   <svg class="icon" :class="className" :style='{ fontSize: fontSize }' aria-hidden="true">
@@ -37,6 +37,7 @@ export default {
   vertical-align: -0.15em;
   fill: currentColor;
   overflow: hidden;
+  transition: all 1s;
 }
 .icon-svg{
   font-size: 60px;

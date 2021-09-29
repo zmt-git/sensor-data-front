@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-26 16:28:18
  * @LastEditors: zmt
- * @LastEditTime: 2021-09-28 16:37:57
+ * @LastEditTime: 2021-09-29 14:38:48
 -->
 <template>
   <div class="login-data-base" v-loading='loading'>
@@ -47,8 +47,7 @@ import { navList } from '@/common/aside'
 import eventBus from '@/util/eventBus'
 import { connection } from '@/ipc/database'
 import { mapGetters } from 'vuex'
-import BaseSvgIcon from './BaseSvgIcon.vue'
-import { Message } from 'element-ui'
+import BaseSvgIcon from '@/components/BaseSvgIcon.vue'
 export default {
   name: 'login-data-base',
 
@@ -120,11 +119,11 @@ export default {
           break
         default : this.$store.dispatch('actionMysqlIsLogin', true)
       }
+      this.$router.push({ path: '/querySQL', query: { type: this[this.currentDataBase] } })
     },
 
-    error (err) {
+    error () {
       this.loading = false
-      Message({ type: 'error', message: err })
     }
   }
 }
