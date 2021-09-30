@@ -3,12 +3,15 @@
  * @Author: zmt
  * @Date: 2021-09-27 13:33:58
  * @LastEditors: zmt
- * @LastEditTime: 2021-09-29 17:30:03
+ * @LastEditTime: 2021-09-30 14:56:21
  */
 import { mysqlConfig } from './config'
-
+import { dialog } from 'electron'
 const mysql = require('mysql')
 const nodeExcel = require('excel-export')
+const fs = require('fs')
+const path = require('path')
+const xlsx = require('node-xlsx')
 let connection
 // TODO 改为promise
 /**
@@ -41,19 +44,21 @@ export function connectMySQL (form, errFn, successFn) {
  * @param {Function} errFn 错误回调
  * @param {Function} successFn 成功回调
  */
-export function queryMySQL (sign, statement, errFn, successFn) {
-  if (connection) {
-    console.log(sign, statement)
-    connection.query(statement, (err, result) => {
-      if (err) {
-        errFn(err)
-        return
-      }
-      successFn({ result, sign })
-    })
-  } else {
-    errFn('mysql未连接')
-  }
+export function queryMySQL (sign, statement) {
+  return new Promise(function (resolve, reject) {
+    if (connection) {
+      console.log(sign, statement)
+      connection.query(statement, (err, result) => {
+        if (err) {
+          reject(err)
+          return
+        }
+        resolve({ result, sign })
+      })
+    } else {
+      reject(new Error('mysql未连接'))
+    }
+  })
 }
 
 // TODO 改为promise
@@ -79,51 +84,69 @@ export function closeMySQL (errFn, successFn) {
  * @description 导出数据为excel
  * @param {String} name 表名称
  */
-export function importMySQL (name) {
+export async function exportMySQL (name) {
   const conf = {}
-  conf.stylesXmlFile = 'styles.xml'
-  conf.name = name
 
-  conf.cols = [{
-    caption: 'string',
-    type: 'string',
-    beforeCellWrite: function (row, cellData) {
-      return cellData.toUpperCase()
-    }
-  }, {
-    caption: 'date',
-    type: 'date',
-    beforeCellWrite: (function () {
-      var originDate = new Date(Date.UTC(1899, 11, 30))
-      return function (row, cellData, eOpt) {
-        if (eOpt.rowNum % 2) {
-          eOpt.styleIndex = 1
-        } else {
-          eOpt.styleIndex = 2
-        }
-        if (cellData === null) {
-          eOpt.cellType = 'string'
-          return 'N/A'
-        } else { return (cellData - originDate) / (24 * 60 * 60 * 1000) }
-      }
-    }())
-  }, {
-    caption: 'bool',
-    type: 'bool'
-  }, {
-    caption: 'number',
-    type: 'number'
-  }]
-  conf.rows = [
-    ['pi', new Date(Date.UTC(2013, 4, 1)), true, 3.14],
-    ['e', new Date(2012, 4, 1), false, 2.7182],
-    ["M&M<>'", new Date(Date.UTC(2013, 6, 9)), false, 1.61803],
-    ['null date', null, true, 1.414]
-  ]
+  conf.name = name
+  conf.cols = []
+  // 获取数据库列名
+  try {
+    const field = await queryMySQL('DESCRIBE', `DESCRIBE ${name}`)
+    field.result.forEach(item => {
+      conf.cols.push({
+        caption: item.Field,
+        type: 'string'
+      })
+    })
+
+    conf.rows = []
+
+    const data = await queryMySQL('selectAll', `select * from ${name}`)
+
+    data.result.forEach(item => {
+      const row = []
+      conf.cols.forEach(key => {
+        row.push(item[key.caption])
+      })
+      conf.rows.push(row)
+    })
+
+    console.log(conf)
+
+    const result = nodeExcel.execute(conf)
+
+    fs.writeFileSync(`/electron/${name}.xlsx`, result, 'binary')
+
+    return `/electron/${name}`
+  } catch (err) {
+    console.error(err)
+    return Promise.reject(err)
+  }
 }
 
 /**
  * @description 导入excel数据
  * @param {String} name 表名称
  */
-export function exportMySQL (name) {}
+export async function importMySQL (name) {
+  try {
+    const filePath = dialog.showOpenDialogSync({ properties: ['openFile'] })
+    if (!filePath) return
+    if (filePath && path.extname(filePath[0]) !== '.xlsx') {
+      throw new Error('文件类型不是xlsx')
+    }
+    const workSheetsFromBuffer = xlsx.parse(filePath[0])
+    if (!workSheetsFromBuffer.length) {
+      return Promise.reject(new Error('未读取到数据源'))
+    }
+    const field = workSheetsFromBuffer[0].data.shift().toString()
+    const p = []
+    workSheetsFromBuffer[0].data.forEach(async item => {
+      p.push(queryMySQL('insert', `INSERT INTO ${name} (${field}) VALUES (${item.toString()})`))
+    })
+
+    return Promise.all(p)
+  } catch (err) {
+    return Promise.reject(err)
+  }
+}

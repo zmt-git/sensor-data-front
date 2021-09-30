@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-26 16:28:18
  * @LastEditors: zmt
- * @LastEditTime: 2021-09-29 14:38:48
+ * @LastEditTime: 2021-09-30 15:50:17
 -->
 <template>
   <div class="login-data-base" v-loading='loading'>
@@ -54,7 +54,7 @@ export default {
   components: { BaseSvgIcon },
 
   computed: {
-    ...mapGetters(['currentDataBase']),
+    ...mapGetters(['Oracle', 'MySQL', 'SQLite', 'currentDataBase']),
 
     iconName () {
       const obj = navList.find(item => item.id === this.currentDataBase)
@@ -88,9 +88,9 @@ export default {
       loading: false,
       rules: {},
       ruleForm: {
-        username: '',
-        password: '',
-        database: ''
+        username: 'root',
+        password: '123456789',
+        database: 'test'
       },
       style: {
         width: '300px'
@@ -108,18 +108,10 @@ export default {
       }
     },
 
-    connectSuccess () {
+    async connectSuccess () {
       this.loading = false
-      switch (this.currentDataBase) {
-        case 'MySQL' : this.$store.dispatch('actionMysqlIsLogin', true)
-          break
-        case 'Oracle' : this.$store.dispatch('actionOracleIsLogin', true)
-          break
-        case 'SQLite' : this.$store.dispatch('actionSqliteIsLogin', true)
-          break
-        default : this.$store.dispatch('actionMysqlIsLogin', true)
-      }
-      this.$router.push({ path: '/querySQL', query: { type: this[this.currentDataBase] } })
+      await this.$store.dispatch('actionSqlIsLogin', { type: this.currentDataBase, value: true })
+      await this.$router.push({ path: '/querySQL', query: { type: this[this.currentDataBase] } })
     },
 
     error () {

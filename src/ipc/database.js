@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-27 15:57:21
  * @LastEditors: zmt
- * @LastEditTime: 2021-09-29 17:16:40
+ * @LastEditTime: 2021-09-30 14:06:42
  */
 import { Message } from 'element-ui'
 import eventBus from '@/util/eventBus'
@@ -27,6 +27,29 @@ function queryError (event, err) {
 function querySuccess (event, msg) {
   eventBus.$emit('querySuccess', msg)
 }
+
+// export error
+function exportError (event, err) {
+  Message({ type: 'error', message: err })
+  eventBus.$emit('exportError', err)
+}
+// export success
+function exportSuccess (event, msg) {
+  Message({ type: 'success', message: `文件成功导出,位置：${msg}` })
+  eventBus.$emit('exportSuccess', msg)
+}
+
+// export error
+function importError (event, err) {
+  Message({ type: 'error', message: err })
+  eventBus.$emit('importError', err)
+}
+// export success
+function importSuccess (event, res) {
+  Message({ type: 'success', message: `文件导入${res.sign}数据成功` })
+  eventBus.$emit('importSuccess', res)
+}
+
 /**
  * @description 注册监听
  */
@@ -38,6 +61,14 @@ export function registerDatabaseIpcRenderer (e) {
   ipcRenderer.on('queryError', queryError)
 
   ipcRenderer.on('querySuccess', querySuccess)
+
+  ipcRenderer.on('exportError', exportError)
+
+  ipcRenderer.on('exportSuccess', exportSuccess)
+
+  ipcRenderer.on('importError', importError)
+
+  ipcRenderer.on('importSuccess', importSuccess)
 }
 
 /**
@@ -70,4 +101,12 @@ export function query (type, sign, arg) {
  */
 export function close (type) {
   ipcRenderer.send('close-database', type)
+}
+
+export function exportExcel (type, name) {
+  ipcRenderer.send('exportExcel', type, name)
+}
+
+export function importExcel (type, name) {
+  ipcRenderer.send('importExcel', type, name)
 }

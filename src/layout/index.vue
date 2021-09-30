@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-26 11:56:42
  * @LastEditors: zmt
- * @LastEditTime: 2021-09-29 16:10:42
+ * @LastEditTime: 2021-09-30 15:48:10
 -->
 <template>
   <div class="d-layout">
@@ -58,8 +58,9 @@ export default {
   },
 
   methods: {
-    setValue (e) {
-      this.$store.dispatch('actionCurrentDataBase', e.id)
+    async setValue (e) {
+      if (this.currentDataBase === e.id) return
+      await this.$store.dispatch('actionCurrentDataBase', e.id)
       if (this.isLogin) {
         this.$router.push({ path: '/querySQL', query: { type: e.id } })
       } else {

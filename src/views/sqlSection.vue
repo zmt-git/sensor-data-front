@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-29 09:02:28
  * @LastEditors: zmt
- * @LastEditTime: 2021-09-29 16:23:28
+ * @LastEditTime: 2021-09-30 15:06:01
 -->
 <template>
   <div class="d-sql" @mouseup="onCancelMove">
@@ -57,10 +57,12 @@ export default {
 
     eventBus.$on('querySuccess', this.querySuccess)
     eventBus.$on('queryError', this.queryError)
+    eventBus.$on('importSuccess', this.importSuccess)
 
     this.$once('hook:beforeDestroy', () => {
       eventBus.$off('querySuccess', this.querySuccess)
       eventBus.$off('queryError', this.queryError)
+      eventBus.$off('importSuccess', this.importSuccess)
     })
   },
 
@@ -90,6 +92,11 @@ export default {
       fn && fn(res.result)
     },
 
+    // ==========导入数据成功==========
+    importSuccess () {
+      this.onRefresh()
+    },
+
     // ==========获取表list数据==========
     onShowTables () {
       query(this.currentDataBase, 'show', 'show tables')
@@ -100,7 +107,6 @@ export default {
 
       if (this.tableList.length > 0) {
         this.onCurrentTable(this.tableList[0])
-        this.getTableData()
       }
     },
 

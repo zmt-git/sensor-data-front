@@ -1,10 +1,10 @@
 'use strict'
 
 import { app, protocol, BrowserWindow, ipcMain } from 'electron'
-import { connectDatabase, queryDatabase } from './database/index'
+import { connectDatabase, queryDatabase, importExcel, exportExcel } from './database/index'
 
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
-import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
+// import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 // Scheme must be registered before the app is ready
@@ -62,14 +62,14 @@ app.on('activate', async () => {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', async () => {
-  if (isDevelopment && !process.env.IS_TEST) {
-    // Install Vue Devtools
-    try {
-      await installExtension(VUEJS_DEVTOOLS)
-    } catch (e) {
-      console.error('Vue Devtools failed to install:', e.toString())
-    }
-  }
+  // if (isDevelopment && !process.env.IS_TEST) {
+  //   // Install Vue Devtools
+  //   try {
+  //     await installExtension(VUEJS_DEVTOOLS)
+  //   } catch (e) {
+  //     console.error('Vue Devtools failed to install:', e.toString())
+  //   }
+  // }
   await createWindow()
 })
 
@@ -138,5 +138,25 @@ ipcMain.on('query', async (event, type, sign, statement) => {
     mainWindow.webContents.send('querySuccess', result)
   } catch (e) {
     mainWindow.webContents.send('queryError', e)
+  }
+})
+
+ipcMain.on('importExcel', async (event, type, name) => {
+  try {
+    const res = await importExcel(type, name)
+    mainWindow.webContents.send('importSuccess', res)
+  } catch (e) {
+    mainWindow.webContents.send('importError', e)
+  }
+})
+
+ipcMain.on('exportExcel', async (event, type, name) => {
+  try {
+    const res = await exportExcel(type, name)
+    mainWindow.webContents.send('exportSuccess', res)
+  } catch (e) {
+    console.error(e)
+
+    mainWindow.webContents.send('exportError', e)
   }
 })

@@ -3,27 +3,27 @@
  * @Author: zmt
  * @Date: 2021-09-26 16:33:11
  * @LastEditors: zmt
- * @LastEditTime: 2021-09-28 10:04:29
+ * @LastEditTime: 2021-09-30 15:50:53
  */
 export default {
   state: {
-    oracleIsLogin: false,
-    mysqlIsLogin: false,
-    sqliteIsLogin: false,
+    Oracle: false,
+    MySQL: false,
+    SQLite: false,
     currentDataBase: 'MySQL'
   },
 
   mutations: {
     setOracleIsLogin (state, isLogin) {
-      state.oracleIsLogin = isLogin
+      state.Oracle = isLogin
     },
 
     setMysqlIsLogin (state, isLogin) {
-      state.mysqlIsLogin = isLogin
+      state.MySQL = isLogin
     },
 
     setSqliteIsLogin (state, isLogin) {
-      state.sqliteIsLogin = isLogin
+      state.SQLite = isLogin
     },
 
     setCurrentDataBase (state, type) {
@@ -40,6 +40,18 @@ export default {
     },
     actionSqliteIsLogin ({ commit }, isLogin) {
       commit('setSqliteIsLogin', isLogin)
+    },
+    actionSqlIsLogin ({ commit }, obj) {
+      const { type, value: isLogin } = obj
+      switch (type) {
+        case 'MySQL' : commit('setMysqlIsLogin', isLogin)
+          break
+        case 'Oracle' : commit('setOracleIsLogin', isLogin)
+          break
+        case 'SQLite' : commit('setSqliteIsLogin', isLogin)
+          break
+        default : commit('setMysqlIsLogin', isLogin)
+      }
     },
     actionCurrentDataBase ({ commit }, type) {
       commit('setCurrentDataBase', type)

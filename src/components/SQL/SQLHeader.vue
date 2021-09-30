@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-29 08:59:24
  * @LastEditors: zmt
- * @LastEditTime: 2021-09-29 16:39:02
+ * @LastEditTime: 2021-09-30 15:21:08
 -->
 <template>
   <div class="d-sql-header">
@@ -19,10 +19,15 @@
     <span class="d-sql-header-icon center" title="导出为excel" @click="onClickExport">
       <base-svg-icon iconName="icon-excel_out" font-size="30px"></base-svg-icon>
     </span>
+    <span class="d-sql-header-icon center" title="断开链接" @click="onClose">
+      <base-svg-icon iconName="icon-lianjieduankai" font-size="30px"></base-svg-icon>
+    </span>
   </div>
 </template>
 
 <script>
+import { exportExcel, importExcel } from '@/ipc/database'
+import { mapGetters } from 'vuex'
 import BaseSvgIcon from '../BaseSvgIcon.vue'
 export default {
   name: 'd-sql-header',
@@ -37,6 +42,9 @@ export default {
     }
   },
   components: { BaseSvgIcon },
+  computed: {
+    ...mapGetters(['currentDataBase', 'currentTableName'])
+  },
   methods: {
     onClickQuery (type) {
       if (this.queryLoading) return
@@ -47,10 +55,20 @@ export default {
       this.$emit('refresh')
     },
     onClickImport () {
-
+      importExcel(this.currentDataBase, this.currentTableName)
     },
     onClickExport () {
-
+      exportExcel(this.currentDataBase, this.currentTableName)
+    },
+    onClose () {
+      this.$confirm('确认断开当前数据库？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+        showClose: true
+      }).then(async () => {
+        this.$store.dispatch('actionSqlIsLogin', this.currentDataBase, false)
+      }).catch(() => {})
     }
   }
 }

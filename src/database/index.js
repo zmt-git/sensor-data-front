@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-28 09:56:26
  * @LastEditors: zmt
- * @LastEditTime: 2021-09-29 16:58:59
+ * @LastEditTime: 2021-09-30 14:00:52
  */
 import { connectMySQL, queryMySQL, closeMySQL, exportMySQL, importMySQL } from './mysql'
 import { connectSQLite, querySQLite, closeSQLite } from './sqlite'
@@ -54,14 +54,13 @@ export function connectDatabase (type, from) {
  * @param {String, Number} sign 标识码
  * @param {String} statement 语句
  */
-export function queryDatabase (type, sign, statement) {
-  return new Promise((resolve, reject) => {
-    SQL.query[type](sign, statement, err => {
-      reject(err)
-    }, success => {
-      resolve(success)
-    })
-  })
+export async function queryDatabase (type, sign, statement) {
+  try {
+    const res = await SQL.query[type](sign, statement)
+    return res
+  } catch (e) {
+    throw new Error(e)
+  }
 }
 
 /**
@@ -79,31 +78,33 @@ export function closeDatabase (type) {
 }
 
 /**
- * @description导出数据excel
- * @param { String } 数据库类型
- * @param { String } 表名称
- */
-export function exportExcel (type, name) {
-  return new Promise((resolve, reject) => {
-    SQL.exportExcel[type](name, err => {
-      reject(err)
-    }, success => {
-      resolve(success)
-    })
-  })
-}
-
-/**
  * @description导入数据excel
  * @param { String } 数据库类型
  * @param { String } 表名称
  */
-export function importExcel (type, name) {
-  return new Promise((resolve, reject) => {
-    SQL.importExcel[type](name, err => {
-      reject(err)
-    }, success => {
-      resolve(success)
-    })
-  })
+export async function importExcel (type, name) {
+  try {
+    const res = await SQL.importExcel[type](name)
+    return res
+  } catch (err) {
+    console.error(err)
+
+    throw new Error(err)
+  }
+}
+
+/**
+ * @description导出数据excel
+ * @param { String } 数据库类型
+ * @param { String } 表名称
+ */
+export async function exportExcel (type, name) {
+  try {
+    const res = await SQL.exportExcel[type](name)
+    return res
+  } catch (err) {
+    console.error(err)
+
+    throw new Error(err)
+  }
 }

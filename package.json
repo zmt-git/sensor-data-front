@@ -19,6 +19,7 @@
     "element-ui": "^2.15.6",
     "excel-export": "^0.5.1",
     "mysql": "^2.18.1",
+    "node-xlsx": "^0.17.2",
     "oracledb": "^5.2.0",
     "sql.js": "^1.6.1",
     "vue": "^2.6.11",
