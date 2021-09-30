@@ -3,22 +3,13 @@
  * @Author: zmt
  * @Date: 2021-09-27 14:13:59
  * @LastEditors: zmt
- * @LastEditTime: 2021-09-28 17:23:52
+ * @LastEditTime: 2021-09-30 16:58:59
  */
-const initSqlJs = require('sql.js')
+const sqlite3 = require('sqlite3').verbose()
 let connection
 
 export async function connectSQLite (filePth, errFn, successFn) {
-  try {
-    const SQL = await initSqlJs({ locateFile: file => `../assets/${file}` })
-
-    connection = new SQL.Database(filePth)
-
-    successFn()
-  } catch (err) {
-    console.log(err)
-    errFn(err)
-  }
+  connection = new sqlite3.Database(filePth)
 }
 
 export function querySQLite (statement, errFn, successFn) {

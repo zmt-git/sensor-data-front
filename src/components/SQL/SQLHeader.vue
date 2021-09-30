@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-29 08:59:24
  * @LastEditors: zmt
- * @LastEditTime: 2021-09-30 15:21:08
+ * @LastEditTime: 2021-09-30 15:57:50
 -->
 <template>
   <div class="d-sql-header">
@@ -67,7 +67,8 @@ export default {
         type: 'warning',
         showClose: true
       }).then(async () => {
-        this.$store.dispatch('actionSqlIsLogin', this.currentDataBase, false)
+        await this.$store.dispatch('actionSqlIsLogin', { type: this.currentDataBase, value: false })
+        this.$router.push({ path: '/', query: { type: this.currentDataBase } })
       }).catch(() => {})
     }
   }
