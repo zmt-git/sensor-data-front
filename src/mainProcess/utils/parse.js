@@ -11,7 +11,7 @@ export function getDate (string) {
 
 export function getDeviceCode (string) {
   const res = string.match(/<.*?>/)
-  if (res.length >= 1) {
+  if (res && res.length >= 1) {
     return res[0].slice(1, -1)
   }
 }

@@ -11,7 +11,8 @@
 import { parseJsonLog } from './jsonLog'
 import { parseStringLog } from './stringLog'
 import { parseTlvLog } from './tlvLog'
-
+import { config } from '../config'
+const nodeExcel = require('excel-export')
 const fs = require('fs')
 const path = require('path')
 const readline = require('readline')
@@ -81,4 +82,34 @@ function parseProtocol (string) {
   } else {
     parseTlvLog(string)
   }
+}
+
+/**
+ * @description导出为excel
+ * @param {*} data
+ */
+export function exportExcel (data) {
+  const conf = {}
+
+  conf.name = '日志'
+
+  conf.cols = [
+    { caption: 'time', type: 'string' },
+    { caption: 'deviceCode', type: 'string' },
+    { caption: 'type', type: 'string' },
+    { caption: 'check', type: 'string' },
+    { caption: 'column', type: 'string' }
+  ]
+
+  conf.rows = []
+  // 获取数据库列名
+  const result = nodeExcel.execute(conf)
+
+  fs.writeFileSync(`${config}/${name}.xlsx`, result, 'binary')
+}
+/**
+ * @description插入数据库
+ */
+export function intoDatabase () {
+
 }
