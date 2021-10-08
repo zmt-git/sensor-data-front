@@ -3,10 +3,10 @@
  * @Author: zmt
  * @Date: 2021-09-27 13:33:58
  * @LastEditors: zmt
- * @LastEditTime: 2021-09-30 14:56:21
+ * @LastEditTime: 2021-10-08 10:09:01
  */
 import { mysqlConfig } from './config'
-import { dialog } from 'electron'
+import { openFileSync } from '../utils/file'
 const mysql = require('mysql')
 const nodeExcel = require('excel-export')
 const fs = require('fs')
@@ -130,7 +130,7 @@ export async function exportMySQL (name) {
  */
 export async function importMySQL (name) {
   try {
-    const filePath = dialog.showOpenDialogSync({ properties: ['openFile'] })
+    const filePath = openFileSync()
     if (!filePath) return
     if (filePath && path.extname(filePath[0]) !== '.xlsx') {
       throw new Error('文件类型不是xlsx')

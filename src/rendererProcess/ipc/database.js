@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-27 15:57:21
  * @LastEditors: zmt
- * @LastEditTime: 2021-09-30 14:06:42
+ * @LastEditTime: 2021-10-08 11:34:13
  */
 import { Message } from 'element-ui'
 import eventBus from '@/util/eventBus'
@@ -53,7 +53,7 @@ function importSuccess (event, res) {
 /**
  * @description 注册监听
  */
-export function registerDatabaseIpcRenderer (e) {
+export function register (e) {
   ipcRenderer.on('error', error)
 
   ipcRenderer.on('connectSuccess', success)
@@ -74,7 +74,7 @@ export function registerDatabaseIpcRenderer (e) {
 /**
  * @description 移除监听
  */
-export function removeDatabaseIpcRenderer () {
+export function remove () {
   ipcRenderer.removeListener('error', error)
   ipcRenderer.removeListener('connectSuccess', success)
 }

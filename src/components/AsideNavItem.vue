@@ -3,10 +3,10 @@
  * @Author: zmt
  * @Date: 2021-09-26 15:33:22
  * @LastEditors: zmt
- * @LastEditTime: 2021-09-27 09:27:48
+ * @LastEditTime: 2021-10-08 09:08:31
 -->
 <template>
-  <div class="aside-nav-item" :class="active" @click="onClick">
+  <div class="aside-nav-item" :class="active" @click="onClick" :title="nav.id">
     <base-svg-icon :iconName="nav.icon"></base-svg-icon>
     <span class="aside-nav-item-name">{{nav.name ? nav.name : ''}}</span>
   </div>

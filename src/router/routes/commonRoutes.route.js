@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-26 12:01:21
  * @LastEditors: zmt
- * @LastEditTime: 2021-09-29 09:57:50
+ * @LastEditTime: 2021-10-08 09:20:46
  */
 export default [
   {
@@ -25,6 +25,16 @@ export default [
         path: '/querySQL',
         name: 'querySQL',
         component: () => import('@/views/sqlSection.vue')
+      },
+      {
+        path: '/updateData',
+        name: 'updateData',
+        component: () => import('@/views/updateData.vue')
+      },
+      {
+        path: '/parseLog',
+        name: 'parseLog',
+        component: () => import('@/views/parseLog.vue')
       }
     ]
   }

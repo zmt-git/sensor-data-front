@@ -3,30 +3,30 @@
  * @Author: zmt
  * @Date: 2021-09-29 08:59:24
  * @LastEditors: zmt
- * @LastEditTime: 2021-09-30 15:57:50
+ * @LastEditTime: 2021-10-08 11:55:59
 -->
 <template>
   <div class="d-sql-header">
     <span class="d-sql-header-icon center" :class='refreshLoading ? "rotate disabled" : ""' title="刷新" @click="onClickRefresh">
-      <base-svg-icon iconName="icon-tongbu" font-size="30px"></base-svg-icon>
+      <base-svg-icon iconName="icon-tongbu" :font-size="fontSize"></base-svg-icon>
     </span>
     <span class="d-sql-header-icon center" :class='queryLoading ? "rotate disabled" : ""' title="执行" @click="onClickQuery">
-      <base-svg-icon iconName="icon-zhihang" font-size="30px"></base-svg-icon>
+      <base-svg-icon iconName="icon-zhihang" :font-size="fontSize"></base-svg-icon>
     </span>
     <span class="d-sql-header-icon center" title="导入excel" @click="onClickImport">
-      <base-svg-icon iconName="icon-excel_in" font-size="30px"></base-svg-icon>
+      <base-svg-icon iconName="icon-excel_in" :font-size="fontSize"></base-svg-icon>
     </span>
     <span class="d-sql-header-icon center" title="导出为excel" @click="onClickExport">
-      <base-svg-icon iconName="icon-excel_out" font-size="30px"></base-svg-icon>
+      <base-svg-icon iconName="icon-excel_out" :font-size="fontSize"></base-svg-icon>
     </span>
     <span class="d-sql-header-icon center" title="断开链接" @click="onClose">
-      <base-svg-icon iconName="icon-lianjieduankai" font-size="30px"></base-svg-icon>
+      <base-svg-icon iconName="icon-duankailianjie" :font-size="fontSize"></base-svg-icon>
     </span>
   </div>
 </template>
 
 <script>
-import { exportExcel, importExcel } from '@/ipc/database'
+import { exportExcel, importExcel } from '@/rendererProcess/ipc/database'
 import { mapGetters } from 'vuex'
 import BaseSvgIcon from '../BaseSvgIcon.vue'
 export default {
@@ -45,21 +45,31 @@ export default {
   computed: {
     ...mapGetters(['currentDataBase', 'currentTableName'])
   },
+  data () {
+    return {
+      fontSize: '24px'
+    }
+  },
   methods: {
+    // 执行语句
     onClickQuery (type) {
       if (this.queryLoading) return
       this.$emit('query')
     },
+    // 刷新
     onClickRefresh () {
       if (this.refreshLoading) return
       this.$emit('refresh')
     },
+    // 导入excel
     onClickImport () {
       importExcel(this.currentDataBase, this.currentTableName)
     },
+    // 导出excel
     onClickExport () {
       exportExcel(this.currentDataBase, this.currentTableName)
     },
+    // 断开链接
     onClose () {
       this.$confirm('确认断开当前数据库？', '提示', {
         confirmButtonText: '确定',

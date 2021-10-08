@@ -3,10 +3,10 @@
  * @Author: zmt
  * @Date: 2021-09-26 15:33:22
  * @LastEditors: zmt
- * @LastEditTime: 2021-09-27 09:28:33
+ * @LastEditTime: 2021-10-08 09:04:14
 -->
 <template>
-  <div class="aside-icon-item" :class="active" @click="onClick">
+  <div class="aside-icon-item" :class="active" @click="onClick" :title="icon.id">
     <base-svg-icon :iconName="icon.icon" font-size='25px'></base-svg-icon>
   </div>
 </template>

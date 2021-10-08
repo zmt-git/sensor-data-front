@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-26 16:28:18
  * @LastEditors: zmt
- * @LastEditTime: 2021-09-30 15:50:17
+ * @LastEditTime: 2021-10-08 13:31:25
 -->
 <template>
   <div class="login-data-base" v-loading='loading'>
@@ -45,7 +45,7 @@
 <script>
 import { navList } from '@/common/aside'
 import eventBus from '@/util/eventBus'
-import { connection } from '@/ipc/database'
+import { connection } from '@/rendererProcess/ipc/database'
 import { mapGetters } from 'vuex'
 import BaseSvgIcon from '@/components/BaseSvgIcon.vue'
 export default {
@@ -99,6 +99,7 @@ export default {
   },
 
   methods: {
+    // 链接数据库
     submitForm () {
       this.loading = true
       if (this.currentDataBase === 'SQLite') {
@@ -107,7 +108,7 @@ export default {
         connection(this.currentDataBase, this.ruleForm)
       }
     },
-
+    // 链接数据库成功
     async connectSuccess () {
       this.loading = false
       await this.$store.dispatch('actionSqlIsLogin', { type: this.currentDataBase, value: true })

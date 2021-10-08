@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-26 11:56:42
  * @LastEditors: zmt
- * @LastEditTime: 2021-09-30 15:48:10
+ * @LastEditTime: 2021-10-08 11:49:48
 -->
 <template>
   <div class="d-layout">
@@ -26,11 +26,11 @@
 
 <script>
 import { navList, iconList } from '@/common/aside'
-import { removeToken } from '@/util/auth/token'
 import { mapGetters } from 'vuex'
 import AsideNavItem from '@/components/AsideNavItem.vue'
 import DHeader from '@/components/Header.vue'
 import { ipcRenderer } from 'electron'
+import eventBus from '@/util/eventBus'
 
 export default {
   name: 'd-layout',
@@ -54,24 +54,29 @@ export default {
   },
 
   mounted () {
-    ipcRenderer.send('changeSize', 1)
+    eventBus.$on('created', () => {
+      ipcRenderer.send('changeSize', 1)
+    })
+
+    this.$nextTick(() => {
+      ipcRenderer.send('changeSize', 1)
+    })
   },
 
   methods: {
+    // 侧边栏切换
     async setValue (e) {
       if (this.currentDataBase === e.id) return
       await this.$store.dispatch('actionCurrentDataBase', e.id)
-      if (this.isLogin) {
-        this.$router.push({ path: '/querySQL', query: { type: e.id } })
+      if (e.check) {
+        if (this.isLogin) {
+          this.$router.push({ path: e.path, query: { type: e.id } })
+        } else {
+          this.$router.push({ path: '/', query: { type: e.id } })
+        }
       } else {
-        this.$router.push({ path: '/', query: { type: e.id } })
+        this.$router.push({ path: e.path, query: { type: e.id } })
       }
-    },
-
-    onClickIcon (e) {
-      this.iconValue = e.id
-      removeToken()
-      this.$router.push('/login')
     }
   }
 }

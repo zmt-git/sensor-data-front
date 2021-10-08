@@ -1,7 +1,7 @@
 'use strict'
 
-import { app, protocol, BrowserWindow, ipcMain } from 'electron'
-import { connectDatabase, queryDatabase, importExcel, exportExcel } from './database/index'
+import { app, protocol, BrowserWindow } from 'electron'
+import { registerIpcMain } from './mainProcess/ipc'
 
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 // import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
@@ -41,6 +41,8 @@ async function createWindow () {
     // Load the index.html when not in development
     await mainWindow.loadURL('app://./index.html')
   }
+
+  registerIpcMain(mainWindow)
 }
 
 // Quit when all windows are closed.
@@ -63,7 +65,7 @@ app.on('activate', async () => {
 // Some APIs can only be used after this event occurs.
 app.on('ready', async () => {
   // if (isDevelopment && !process.env.IS_TEST) {
-  //   // Install Vue Devtools
+  // Install Vue Devtools
   //   try {
   //     await installExtension(VUEJS_DEVTOOLS)
   //   } catch (e) {
@@ -87,76 +89,3 @@ if (isDevelopment) {
     })
   }
 }
-
-// ------------------------------- 改变窗口大小ipc --------------------------------------
-ipcMain.on('changeSize', (event, type) => {
-  console.log(type)
-  let width = 1290
-  let height = 720
-  if (type === 0) {
-    width = 300
-    height = 480
-  }
-  mainWindow.setSize(width, height)
-  mainWindow.center()
-})
-// ------------------------------------------------------------------------------------
-
-// ------------------------------- 窗口 关闭 最小化 最大化 还原 ---------------------------
-// 窗口 关闭 最小化 最大化 还原
-ipcMain.on('window-min', (event) => {
-  mainWindow.minimize()
-})
-ipcMain.on('window-max', (event) => {
-  if (mainWindow.isMaximized()) {
-    mainWindow.unmaximize()
-  } else {
-    mainWindow.maximize()
-  }
-
-  mainWindow.webContents.send('isMax', mainWindow.isMaximized())
-})
-ipcMain.on('window-close', (event) => {
-  console.log('close')
-  mainWindow.close()
-})
-// ------------------------------------------------------------------------------------
-
-// ------------------------------- 数据库 操作 --------------------------------------
-ipcMain.on('connect', async (event, type, from) => {
-  try {
-    await connectDatabase(type, from)
-    mainWindow.webContents.send('connectSuccess', `${type}链接成功`)
-  } catch (e) {
-    mainWindow.webContents.send('error', e)
-  }
-})
-
-ipcMain.on('query', async (event, type, sign, statement) => {
-  try {
-    const result = await queryDatabase(type, sign, statement)
-    mainWindow.webContents.send('querySuccess', result)
-  } catch (e) {
-    mainWindow.webContents.send('queryError', e)
-  }
-})
-
-ipcMain.on('importExcel', async (event, type, name) => {
-  try {
-    const res = await importExcel(type, name)
-    mainWindow.webContents.send('importSuccess', res)
-  } catch (e) {
-    mainWindow.webContents.send('importError', e)
-  }
-})
-
-ipcMain.on('exportExcel', async (event, type, name) => {
-  try {
-    const res = await exportExcel(type, name)
-    mainWindow.webContents.send('exportSuccess', res)
-  } catch (e) {
-    console.error(e)
-
-    mainWindow.webContents.send('exportError', e)
-  }
-})

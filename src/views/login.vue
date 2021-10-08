@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-26 11:59:49
  * @LastEditors: zmt
- * @LastEditTime: 2021-09-28 16:00:30
+ * @LastEditTime: 2021-10-08 14:58:21
 -->
 
 <template>
@@ -72,6 +72,7 @@ export default {
   },
 
   methods: {
+    // 登录
     submitForm () {
       this.$refs.ruleForm.validate(async valid => {
         if (valid) {

@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-29 09:00:03
  * @LastEditors: zmt
- * @LastEditTime: 2021-09-29 15:20:48
+ * @LastEditTime: 2021-10-08 11:55:12
 -->
 <template>
   <ul class="d-sql-aside" id="sqlAside">
@@ -37,6 +37,7 @@ export default {
   },
 
   methods: {
+    // 表切换
     onClick (item) {
       this.$emit('onClick', item)
     }

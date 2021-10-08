@@ -1,20 +1,20 @@
 /*
- * @Description: renderer ipc
+ * @Description: 头部最大化 最小化 关闭
  * @Author: zmt
  * @Date: 2021-09-27 09:34:02
  * @LastEditors: zmt
- * @LastEditTime: 2021-09-28 15:59:04
+ * @LastEditTime: 2021-10-08 12:03:24
  */
 
 import eventBus from '@/util/eventBus'
 
 import { ipcRenderer } from 'electron'
 
-export function registerHeaderIpcRenderer (e) {
+export function register (e) {
   ipcRenderer.on('isMax', isMax)
 }
 
-export function removeHeaderIpcRenderer () {
+export function remove () {
   ipcRenderer.removeListener('isMax', isMax)
 }
 

@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-27 08:54:37
  * @LastEditors: zmt
- * @LastEditTime: 2021-09-29 14:46:23
+ * @LastEditTime: 2021-10-08 11:58:16
 -->
 <template>
   <header class="d-header" :style="{ backgroundColor: bg }">
@@ -37,7 +37,7 @@
 <script>
 import BaseSvgIcon from './BaseSvgIcon.vue'
 import eventBus from '@/util/eventBus'
-import { headerIpc } from '@/ipc/header'
+import { headerIpc } from '@/rendererProcess/ipc/header'
 import { removeToken } from '@/util/auth/token'
 export default {
   name: 'd-header',
@@ -94,25 +94,26 @@ export default {
   },
 
   methods: {
+    // 头部操作
     headerControl (type) {
       headerIpc(type)
     },
-
+    // 隐藏程序
     onHiddenInfo () {
       this.show = false
     },
-
+    // 显示程序
     onShowInfo (event) {
       this.show = !this.show
       event.stopPropagation()
     },
-
+    // 头像点击
     onClickInfo (item) {
       if (item.title === '退出') {
         this.logout()
       }
     },
-
+    // 退出登录
     logout () {
       this.$confirm('确认退出该账号吗？', '提示', {
         confirmButtonText: '确定',
