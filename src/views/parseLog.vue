@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-10-08 09:18:58
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-08 14:38:11
+ * @LastEditTime: 2021-10-09 14:19:58
 -->
 <template>
   <div class="d-parse-log center">
@@ -39,7 +39,7 @@
               clearable
               v-model="form.exportDirectory"
               :style="style"
-              placeholder="导出目录"
+              placeholder="导出文件"
             ></el-input>
           </div>
         </el-form-item>
@@ -58,9 +58,9 @@
           <el-form-item>
             <el-input
               class="el-input__inner-radius"
-              v-model="form.tableName"
+              v-model="form.connectString "
               :style="style"
-              placeholder="表名称"></el-input>
+              placeholder="链接字符串"></el-input>
           </el-form-item>
         </template>
         <el-form-item>
@@ -77,6 +77,7 @@ import eventBus from '@/util/eventBus'
 import BaseSvgIcon from '../components/BaseSvgIcon.vue'
 import { onDialog } from '../rendererProcess/ipc/dialog'
 import { onParse } from '../rendererProcess/ipc/parse'
+import { config } from '../../public/config/index'
 export default {
   components: { BaseSvgIcon },
   name: 'parse-log',
@@ -100,13 +101,13 @@ export default {
       form: {
         importDirectory: '',
         type: 1,
-        exportDirectory: '',
+        exportDirectory: `${config.savePath}/${config.logFileName}.txt`,
         databaseType: '',
-        tableName: ''
+        connectString: ''
       },
       options: [
         { value: 0, label: '入库' },
-        { value: 1, label: '导出为excel' }
+        { value: 1, label: '导出为txt文件' }
       ],
       style: {
         width: '300px'

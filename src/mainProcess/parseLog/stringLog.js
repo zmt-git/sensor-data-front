@@ -3,52 +3,31 @@
  * @Author: zmt
  * @Date: 2021-10-08 13:48:13
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-08 17:07:20
+ * @LastEditTime: 2021-10-09 11:25:18
  */
 import { getDate, getDeviceCode } from '../utils/parse'
-
+// {
+//   "type":"string",
+//   "split":",",
+//   "check":{"clazz":"laser.ServerHandler","head":"SYSINFO","end":"ENDP","length":20},
+//   "column":{"battery_voltage":0,"power_voltage":1,"motherboard_temperature":5}
+// }
 const template = {
   time: '',
   deviceCode: '',
   type: 'string',
-  split: ',',
-  check: { class: 'laser.ServerHandler', head: '', end: '', length: 0 },
   column: { battery_voltage: 0, power_voltage: 1, motherboard_temperature: 5 }
 }
 
 export function parseStringLog (string) {
   template.time = new Date(getDate(string))
   template.deviceCode = getDeviceCode(string)
-  // check
-  const info = string.split('：').pop()
-  template.check.head = getHead(info)
-  template.check.end = getEnd(info)
-  template.check.length = getLength(info)
+  const body = string.split('：').pop().split(',')
+  body.shift()
+  body.pop()
   // column
-  template.column.battery_voltage = getBatteryVoltage(info)
-  template.column.power_voltage = getPowerVoltage(info)
-  template.column.motherboard_temperature = getMotherboardTemperature(info)
+  template.column.battery_voltage = body[0]
+  template.column.power_voltage = body[1]
+  template.column.motherboard_temperature = body[5]
   return JSON.stringify(template)
 }
-
-function getHead (string) {
-  return string.split(',').shift()
-}
-
-function getEnd (string) {
-  return string.split(',').pop()
-}
-
-// todo
-function getLength (string) {
-
-}
-
-// todo
-function getBatteryVoltage (string) {}
-
-// todo
-function getPowerVoltage (string) {}
-
-// todo
-function getMotherboardTemperature (string) {}

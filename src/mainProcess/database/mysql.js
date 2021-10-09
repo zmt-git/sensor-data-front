@@ -3,10 +3,12 @@
  * @Author: zmt
  * @Date: 2021-09-27 13:33:58
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-08 10:09:01
+ * @LastEditTime: 2021-10-09 15:40:29
  */
 import { mysqlConfig } from './config'
 import { openFileSync } from '../utils/file'
+import { config } from '../../../public/config/index'
+
 const mysql = require('mysql')
 const nodeExcel = require('excel-export')
 const fs = require('fs')
@@ -33,7 +35,7 @@ export function connectMySQL (form, errFn, successFn) {
       errFn(err)
       return
     }
-    successFn(connection.threadId)
+    successFn(connection)
   })
 }
 // TODO 改为promise
@@ -111,13 +113,15 @@ export async function exportMySQL (name) {
       conf.rows.push(row)
     })
 
-    console.log(conf)
-
     const result = nodeExcel.execute(conf)
 
-    fs.writeFileSync(`/electron/${name}.xlsx`, result, 'binary')
+    if (!fs.existsSync(config.savePath)) {
+      fs.mkdirSync(config.savePath)
+    }
 
-    return `/electron/${name}`
+    fs.writeFileSync(`${config.savePath}/${name}.xlsx`, result, 'binary')
+
+    return `/${config.savePath}/${name}`
   } catch (err) {
     console.error(err)
     return Promise.reject(err)
