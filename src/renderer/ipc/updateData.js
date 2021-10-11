@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-10-09 15:14:54
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-11 14:37:51
+ * @LastEditTime: 2021-10-11 17:14:39
  */
 /*
  * @Description: dialog选择目录
@@ -24,7 +24,7 @@ export function register () {
 }
 
 export function remove () {
-  ipcRenderer.removeListener('onDialog', onForwardRes)
+  ipcRenderer.removeListener('forward', onForwardRes)
 }
 
 export function onForward (form) {

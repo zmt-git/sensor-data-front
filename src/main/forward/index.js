@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-10-09 15:21:49
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-11 16:48:13
+ * @LastEditTime: 2021-10-11 17:16:15
  */
 /**
  * 1.链接数据库
@@ -42,9 +42,10 @@ export async function forward (f) {
     const source = await connect(form.sourceDatabaseType, { ...config.forward[form.sourceDatabaseType], database: form.sourceConnectString })
     // 链接目标数据库
     const target = await connect(form.targetDatabaseType, { ...config.forward[form.sourceDatabaseType], database: form.sourceConnectString })
-    startForward(source, target, form)
+
+    await startForward(source, target, form)
   } catch (e) {
-    console.warn(e)
+    throw new Error(e)
   }
 }
 
@@ -108,7 +109,6 @@ async function insertData (source, target) {
       await handleUnInsertData(target)
     }
   } catch (e) {
-    console.error(e)
     throw new Error(`${form.sourceConnectString}-${form.sourceTableName} select data error, reason: ${e}`)
   }
 }
@@ -122,9 +122,8 @@ async function insertBatchData (target, cacheArr) {
   try {
     await target.insertBatch(form.targetTableName, keys, cacheArr)
   } catch (e) {
-    console.error(123)
-    console.error(e)
     unInsertData.push(cacheArr)
+    throw new Error(e)
   }
 }
 
@@ -137,7 +136,7 @@ async function handleUnInsertData (target) {
   try {
     await target.insertBatch(form.targetTableName, keys, unInsertData)
   } catch (e) {
-    console.error(e)
     fs.writeFileSync(`${config.savePath}/unInsertData.txt`, JSON.stringify(unInsertData))
+    throw new Error(e)
   }
 }

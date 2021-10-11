@@ -3,31 +3,21 @@
  * @Author: zmt
  * @Date: 2021-09-27 15:57:21
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-11 13:39:58
+ * @LastEditTime: 2021-10-11 17:14:53
  */
 import { ipcRenderer } from 'electron'
 import eventBus from '@/util/eventBus'
-import { Message } from 'element-ui'
-
-function message (res) {
-  Message({
-    type: res.code === 1 ? 'success' : 'error',
-    message: res.msg
-  })
-}
+import { message } from '@/util'
 
 function onConnect (event, res) {
-  message(res)
   eventBus.$emit('connect', res)
 }
 
 function onQuery (event, res) {
-  message(res)
   eventBus.$emit('query', res)
 }
 
 function onClose (event, res) {
-  message(res)
   eventBus.$emit('close', res)
 }
 

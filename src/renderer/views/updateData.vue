@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-10-08 09:17:40
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-11 15:08:57
+ * @LastEditTime: 2021-10-11 17:15:17
 -->
 <template>
   <div class="d-update-data">
@@ -83,6 +83,7 @@ import { navList } from '@/common/aside'
 import BaseSvgIcon from '@/components/BaseSvgIcon.vue'
 import eventBus from '@/util/eventBus'
 import { onForward } from '@/ipc/updateData'
+import { message } from '@/util'
 export default {
   name: 'update-data',
 
@@ -119,8 +120,9 @@ export default {
       onForward(this.form)
     },
 
-    forward () {
-
+    forward (res) {
+      this.loading = false
+      message(res)
     }
   }
 }
