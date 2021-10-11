@@ -37,7 +37,7 @@
 <script>
 import BaseSvgIcon from './BaseSvgIcon.vue'
 import eventBus from '@/util/eventBus'
-import { headerIpc } from '@/rendererProcess/ipc/header'
+import { headerIpc } from '@/ipc/header'
 import { removeToken } from '@/util/auth/token'
 export default {
   name: 'd-header',

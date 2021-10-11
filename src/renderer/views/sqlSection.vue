@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-29 09:02:28
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-08 09:55:34
+ * @LastEditTime: 2021-10-11 09:02:53
 -->
 <template>
   <div class="d-sql" @mouseup="onCancelMove">
@@ -29,7 +29,7 @@ import SQLAside from '@/components/SQL/SQLAside.vue'
 import SQLHeader from '@/components/SQL/SQLHeader.vue'
 import SQLQuery from '@/components/SQL/SQLQuery.vue'
 import SQLTable from '@/components/SQL/SQLTable.vue'
-import { query } from '@/rendererProcess/ipc/database'
+import { query } from '@/ipc/database'
 import eventBus from '@/util/eventBus'
 import { Message } from 'element-ui'
 export default {

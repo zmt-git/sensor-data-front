@@ -1,7 +1,7 @@
 'use strict'
 
 import { app, protocol, BrowserWindow } from 'electron'
-import { registerIpcMain } from './mainProcess/ipc'
+import { registerIpcMain } from './main/ipc'
 
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 // import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'

@@ -3,11 +3,11 @@
  * @Author: zmt
  * @Date: 2021-09-27 13:33:58
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-09 15:40:29
+ * @LastEditTime: 2021-10-11 09:05:19
  */
 import { mysqlConfig } from './config'
 import { openFileSync } from '../utils/file'
-import { config } from '../../../public/config/index'
+import { config } from '../config/index'
 
 const mysql = require('mysql')
 const nodeExcel = require('excel-export')

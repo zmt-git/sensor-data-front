@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-29 08:59:24
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-08 11:55:59
+ * @LastEditTime: 2021-10-11 08:58:54
 -->
 <template>
   <div class="d-sql-header">
@@ -26,7 +26,7 @@
 </template>
 
 <script>
-import { exportExcel, importExcel } from '@/rendererProcess/ipc/database'
+import { exportExcel, importExcel } from '@/ipc/database'
 import { mapGetters } from 'vuex'
 import BaseSvgIcon from '../BaseSvgIcon.vue'
 export default {

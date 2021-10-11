@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-10-08 09:18:58
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-09 14:19:58
+ * @LastEditTime: 2021-10-11 09:03:11
 -->
 <template>
   <div class="d-parse-log center">
@@ -74,10 +74,10 @@
 <script>
 import { navList } from '@/common/aside'
 import eventBus from '@/util/eventBus'
-import BaseSvgIcon from '../components/BaseSvgIcon.vue'
-import { onDialog } from '../rendererProcess/ipc/dialog'
-import { onParse } from '../rendererProcess/ipc/parse'
-import { config } from '../../public/config/index'
+import BaseSvgIcon from '@/components/BaseSvgIcon.vue'
+import { onDialog } from '@/ipc/dialog'
+import { onParse } from '@/ipc/parse'
+import { config } from '#/config/index'
 export default {
   components: { BaseSvgIcon },
   name: 'parse-log',

@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-10-08 13:47:44
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-09 15:24:10
+ * @LastEditTime: 2021-10-11 09:05:06
  */
 // 选取目录 -> 获取目录.log文件 -> 读取文件
 // 读取文件 -> 按行读取 -> 解析
@@ -11,7 +11,7 @@
 import { parseJsonLog } from './jsonLog'
 import { parseStringLog } from './stringLog'
 import { parseTlvLog } from './tlvLog'
-import { config } from '../../../public/config'
+import { config } from '../config'
 import { isProtocolJson, isProtocolString, isProtocolTlv } from '../utils/parse'
 import { connectDatabase, queryDatabase } from '../database'
 

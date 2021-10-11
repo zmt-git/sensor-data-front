@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-10-08 09:17:40
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-09 15:23:32
+ * @LastEditTime: 2021-10-11 08:59:34
 -->
 <template>
   <div class="d-update-data">
@@ -66,8 +66,8 @@
 
 <script>
 import { navList } from '@/common/aside'
-import BaseSvgIcon from '../components/BaseSvgIcon.vue'
-import { onForward } from '../rendererProcess/ipc/updateData'
+import BaseSvgIcon from '@/components/BaseSvgIcon.vue'
+import { onForward } from '@/ipc/updateData'
 export default {
   name: 'update-data',
 

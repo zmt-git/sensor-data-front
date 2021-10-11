@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-26 16:28:18
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-08 13:31:25
+ * @LastEditTime: 2021-10-11 08:58:58
 -->
 <template>
   <div class="login-data-base" v-loading='loading'>
@@ -45,7 +45,7 @@
 <script>
 import { navList } from '@/common/aside'
 import eventBus from '@/util/eventBus'
-import { connection } from '@/rendererProcess/ipc/database'
+import { connection } from '@/ipc/database'
 import { mapGetters } from 'vuex'
 import BaseSvgIcon from '@/components/BaseSvgIcon.vue'
 export default {
