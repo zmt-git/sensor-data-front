@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-10-09 15:21:49
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-09 16:31:02
+ * @LastEditTime: 2021-10-11 16:48:13
  */
 /**
  * 1.链接数据库
@@ -11,42 +11,133 @@
  * 3.缓存数据
  * 4.目标数据库入库
  */
-import { connectDatabase } from '../database/index'
+import { connect } from '../database'
+import { config } from '../config'
+const fs = require('fs')
+let pageSize = 100
+let pageNum = 1
+let form
+let sourceColumn = []
+let targetColumn = []
+let keys = []
+let unInsertData = []
 /**
  * @description数据实时转发
- * @param {Object} form {sourceDatabaseType: '',sourceConnectString: '',targetDatabaseType: '',targetConnectString: '' }
+ * @param {Object} form {
+ *      sourceDatabaseType: '',
+        sourceConnectString: '',
+        sourceTableName: '',
+        targetDatabaseType: '',
+        targetConnectString: '',
+        targetTableName: ''
+      }
  */
-export async function forward (form) {
+export async function forward (f) {
+  form = f
+  unInsertData = []
   try {
+    pageSize = 100
+    pageNum = 1
     // 链接源数据库
-    const source = await connectDatabase(form.sourceDatabaseType, { username: 'root', password: '123456789', database: form.sourceConnectString })
+    const source = await connect(form.sourceDatabaseType, { ...config.forward[form.sourceDatabaseType], database: form.sourceConnectString })
     // 链接目标数据库
-    const target = await connectDatabase(form.targetDatabaseType, { username: 'root', password: '123456789', database: form.targetConnectString })
-
-    startForward(source, target)
+    const target = await connect(form.targetDatabaseType, { ...config.forward[form.sourceDatabaseType], database: form.sourceConnectString })
+    startForward(source, target, form)
   } catch (e) {
-    console.error(e)
+    console.warn(e)
   }
 }
 
-// todo
-function startForward (source, target) {
-  selectData()
+async function startForward (source, target, form) {
+  keys = []
 
-  cacheData()
+  sourceColumn = await source.getColum(form.sourceTableName)
 
-  insertData()
+  targetColumn = await source.getColum(form.targetTableName)
+
+  if (sourceColumn.length === 0 || targetColumn.length === 0) return
+
+  if (!isSame(sourceColumn, targetColumn)) {
+    throw new Error(`${form.sourceTableName} and ${form.targetTableName} fields do not match`)
+  }
+
+  targetColumn.forEach(item => {
+    keys.push(item.Field)
+  })
+
+  await insertData(source, target)
 }
+
+function isSame (source, target) {
+  if (source.length !== target.length) return false
+
+  for (const obj of source) {
+    const res = target.find(item => item.Field === obj.Field)
+    if (!res) {
+      return false
+    }
+  }
+
+  return true
+}
+
 /**
- * @description源数据库读取数据
+ * @description插入数据
+ * @param { Connection } target
  */
-function selectData () {
+async function insertData (source, target) {
+  const cacheArr = []
+  try {
+    const res = await source.selectLimit(form.sourceTableName, pageNum, pageSize)
+
+    res.forEach(item => {
+      const arr = []
+      Object.keys(item).forEach(key => {
+        arr.push(item[key])
+      })
+      cacheArr.push(arr)
+    })
+
+    if (res.length !== 0) {
+      pageNum++
+
+      await insertBatchData(target, cacheArr)
+
+      await insertData(source, target)
+    } else {
+      await handleUnInsertData(target)
+    }
+  } catch (e) {
+    console.error(e)
+    throw new Error(`${form.sourceConnectString}-${form.sourceTableName} select data error, reason: ${e}`)
+  }
 }
 
-// 缓存数据
-function cacheData () {
+/**
+ * @description批量插入数据
+ * @param {Connection} target
+ * @param {Array} cacheArr
+ */
+async function insertBatchData (target, cacheArr) {
+  try {
+    await target.insertBatch(form.targetTableName, keys, cacheArr)
+  } catch (e) {
+    console.error(123)
+    console.error(e)
+    unInsertData.push(cacheArr)
+  }
 }
 
-// 入库
-function insertData () {
+/**
+ * @description 插入数据一次处理 重新插入一次，报错则写入文件
+ * @param {Connection} target
+ */
+async function handleUnInsertData (target) {
+  if (unInsertData.length === 0) return
+  try {
+    await target.insertBatch(form.targetTableName, keys, unInsertData)
+  } catch (e) {
+    console.error(e)
+    fs.writeFileSync(`${config.savePath}/unInsertData.txt`, JSON.stringify(unInsertData))
+  }
 }

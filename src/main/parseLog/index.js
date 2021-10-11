@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-10-08 13:47:44
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-11 09:05:06
+ * @LastEditTime: 2021-10-11 11:59:23
  */
 // 选取目录 -> 获取目录.log文件 -> 读取文件
 // 读取文件 -> 按行读取 -> 解析
@@ -13,7 +13,7 @@ import { parseStringLog } from './stringLog'
 import { parseTlvLog } from './tlvLog'
 import { config } from '../config'
 import { isProtocolJson, isProtocolString, isProtocolTlv } from '../utils/parse'
-import { connectDatabase, queryDatabase } from '../database'
+import { connect } from '../database'
 
 const fs = require('fs')
 const path = require('path')
@@ -26,9 +26,14 @@ const isFile = fileName => {
 
 export async function parse (form) {
   const pathArr = getFilePath(form.importDirectory)
+
+  const p = []
+
   pathArr.forEach(filePath => {
-    readFile(filePath, form)
+    p.push(readFile(filePath, form))
   })
+
+  return Promise.all(p)
 }
 
 /**
@@ -53,18 +58,24 @@ function getFilePath (directory) {
  * @param {Path String} filePath
  */
 function readFile (filePath, form) {
-  const stream = fs.createReadStream(filePath)
+  return new Promise((resolve, reject) => {
+    const stream = fs.createReadStream(filePath)
 
-  const rl = readline.createInterface({
-    input: stream
-  })
+    const rl = readline.createInterface({
+      input: stream
+    })
 
-  rl.on('line', (data) => {
-    parseProtocol(data, form)
-  })
+    rl.on('line', (data) => {
+      parseProtocol(data, form)
+    })
 
-  stream.on('end', () => {
-    console.log('读取完成' + filePath)
+    stream.on('end', () => {
+      resolve('读取完成' + filePath)
+    })
+
+    stream.on('error', (err) => {
+      reject(err)
+    })
   })
 }
 
@@ -85,7 +96,6 @@ function parseProtocol (string, form) {
   }
 
   if (!res) return
-
   if (form.type === 1) {
     exportTxt(res, form)
   } else if (form.type === 0) {
@@ -112,7 +122,6 @@ function exportTxt (jsonString, form) {
   }
 }
 
-// TODO 入库异常处理
 /**
  * @description插入数据库
  * @param {JsonString} jsonString
@@ -121,16 +130,16 @@ function exportTxt (jsonString, form) {
 export async function intoDatabase (jsonString, form) {
   try {
     const res = JSON.parse(jsonString)
-    await connectDatabase(form.databaseType, { username: 'root', password: '123456789', database: form.connectString })
-    const keys = Object.keys(res.column).toString()
+    const sql = await connect(form.databaseType, { username: 'root', password: '123456789', database: form.connectString })
+    const keys = Object.keys(res.column)
 
     const values = []
     Object.keys(res.column).forEach(item => {
       values.push(res.column[item])
     })
 
-    await queryDatabase(form.databaseType, 'log', `INSERT INTO device_log (${keys}) VALUES (${values.join(',')})`)
+    await sql.insertOne('device_log', keys, values)
   } catch (err) {
-    console.error(err)
+    throw new Error(err)
   }
 }

@@ -7,9 +7,9 @@
 -->
 <template>
   <ul class="d-sql-aside" id="sqlAside">
-    <li class="d-sql-aside-li" :class="item[valueKey] === current ? 'active' : ''" v-for="item in list" :key="item.name" @click="onClick(item)">
+    <li class="d-sql-aside-li" :class="item === current ? 'active' : ''" v-for="item in list" :key="item.name" @click="onClick(item)">
       <base-svg-icon iconName="icon-biaoge" font-size="14px"></base-svg-icon>
-      <span class="d-sql-aside-li__name">{{item[valueKey]}}</span>
+      <span class="d-sql-aside-li__name">{{item}}</span>
       </li>
     <div class="d-sql-aside-resize" id="resize"></div>
   </ul>
@@ -25,10 +25,6 @@ export default {
     list: {
       type: Array,
       default: () => {}
-    },
-    valueKey: {
-      type: String,
-      default: 'Tables_in_test'
     },
     current: {
       type: String,

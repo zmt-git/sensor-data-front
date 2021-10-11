@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-10-08 09:17:40
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-11 08:59:34
+ * @LastEditTime: 2021-10-11 15:08:57
 -->
 <template>
   <div class="d-update-data">
@@ -27,6 +27,13 @@
               v-model="form.sourceConnectString "
               :style="style"
               placeholder="链接字符串"></el-input>
+          </el-form-item>
+          <el-form-item>
+            <el-input
+              class="el-input__inner-radius"
+              v-model="form.sourceTableName "
+              :style="style"
+              placeholder="表名称"></el-input>
           </el-form-item>
         <!-- <el-form-item>
           <el-button type="primary" @click="submitForm" class="width-100" round>{{btnName}}</el-button>
@@ -59,6 +66,13 @@
               :style="style"
               placeholder="链接字符串"></el-input>
           </el-form-item>
+          <el-form-item>
+            <el-input
+              class="el-input__inner-radius"
+              v-model="form.targetTableName "
+              :style="style"
+              placeholder="表名称"></el-input>
+          </el-form-item>
         </el-form>
     </div>
   </div>
@@ -67,6 +81,7 @@
 <script>
 import { navList } from '@/common/aside'
 import BaseSvgIcon from '@/components/BaseSvgIcon.vue'
+import eventBus from '@/util/eventBus'
 import { onForward } from '@/ipc/updateData'
 export default {
   name: 'update-data',
@@ -82,10 +97,12 @@ export default {
   data () {
     return {
       form: {
-        sourceDatabaseType: '',
-        sourceConnectString: '',
-        targetDatabaseType: '',
-        targetConnectString: ''
+        sourceDatabaseType: 'MySQL',
+        sourceConnectString: 'test',
+        sourceTableName: 'test',
+        targetDatabaseType: 'MySQL',
+        targetConnectString: 'test',
+        targetTableName: 'test2'
       },
       style: {
         width: '300px'
@@ -93,9 +110,17 @@ export default {
     }
   },
 
+  created () {
+    eventBus.$on('forward', this.forward)
+  },
+
   methods: {
     submitForm () {
       onForward(this.form)
+    },
+
+    forward () {
+
     }
   }
 }

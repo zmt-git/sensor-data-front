@@ -3,12 +3,12 @@
  * @Author: zmt
  * @Date: 2021-09-29 09:02:28
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-11 09:02:53
+ * @LastEditTime: 2021-10-11 15:03:20
 -->
 <template>
   <div class="d-sql" @mouseup="onCancelMove">
     <SQL-header
-      @query='onQuery'
+      @query='query'
       @refresh='onRefresh'
       :queryLoading='queryLoading'
       :refreshLoading='refreshLoading'
@@ -29,7 +29,7 @@ import SQLAside from '@/components/SQL/SQLAside.vue'
 import SQLHeader from '@/components/SQL/SQLHeader.vue'
 import SQLQuery from '@/components/SQL/SQLQuery.vue'
 import SQLTable from '@/components/SQL/SQLTable.vue'
-import { query } from '@/ipc/database'
+import { emitQuery } from '@/ipc/database'
 import eventBus from '@/util/eventBus'
 import { Message } from 'element-ui'
 export default {
@@ -45,7 +45,6 @@ export default {
     return {
       refreshLoading: false,
       queryLoading: false,
-      valueKey: 'Tables_in_test',
       statement: '',
       tableList: [],
       tableData: []
@@ -55,56 +54,59 @@ export default {
   created () {
     this.onShowTables()
 
-    eventBus.$on('querySuccess', this.querySuccess)
-    eventBus.$on('queryError', this.queryError)
-    eventBus.$on('importSuccess', this.importSuccess)
+    eventBus.$on('query', this.onQuery)
+    eventBus.$on('importExcel', this.onImportExcel)
 
     this.$once('hook:beforeDestroy', () => {
-      eventBus.$off('querySuccess', this.querySuccess)
-      eventBus.$off('queryError', this.queryError)
-      eventBus.$off('importSuccess', this.importSuccess)
+      eventBus.$off('query', this.onQuery)
+      eventBus.$off('importExcel', this.onImportExcel)
     })
   },
 
   methods: {
     // ==========切换表==========
     onCurrentTable (item) {
-      this.$store.dispatch('actionsCurrentTableName', item[this.valueKey])
+      this.$store.dispatch('actionsCurrentTableName', item)
       this.getTableData()
     },
-    // ==========查询失败==========
-    queryError () {
-      this.refreshLoading = false
-      this.queryLoading = false
-    },
-    // ==========查询成功==========
-    querySuccess (res) {
-      let fn
-      switch (res.sign) {
-        case 'show' : fn = this.setTables
-          break
-        case 'selectAll' : fn = this.setTableData
-          break
-        case 'custom' : fn = this.getTableData
-          break
-        default : fn = undefined
+    // ==========查询回调==========
+    onQuery (res) {
+      if (res.code === 1) {
+        let fn
+        switch (res.result.sign) {
+          case 'show' : fn = this.setTables
+            break
+          case 'selectAll' : fn = this.setTableData
+            break
+          case 'custom' : fn = this.getTableData
+            break
+          default : fn = undefined
+        }
+        fn && fn(res.result)
+      } else {
+        this.refreshLoading = false
+        this.queryLoading = false
       }
-      fn && fn(res.result)
     },
 
     // ==========导入数据成功==========
-    importSuccess () {
-      this.onRefresh()
+    importExcel (res) {
+      if (res.code === 1) {
+        this.onRefresh()
+      }
     },
 
     // ==========获取表list数据==========
     onShowTables () {
-      query(this.currentDataBase, 'show', 'show tables')
+      emitQuery(this.currentDataBase, 'show', 'show tables')
     },
+
     // ==========设置表list数据==========
     setTables (result) {
-      this.tableList = result
-
+      this.tableList = []
+      result.result.forEach(item => {
+        this.tableList.push(item.Tables_in_test)
+      })
       if (this.tableList.length > 0) {
         this.onCurrentTable(this.tableList[0])
       }
@@ -112,13 +114,14 @@ export default {
 
     // ==========获取表指定表数据==========
     getTableData () {
-      query(this.currentDataBase, 'selectAll', `select * from ${this.currentTableName}`)
+      emitQuery(this.currentDataBase, 'selectAll', `select * from ${this.currentTableName}`)
     },
+
     // ==========设置表指定表数据==========
     setTableData (result) {
       this.refreshLoading = false
       this.queryLoading = false
-      this.tableData = result
+      this.tableData = result.result
     },
 
     // ==========刷新表list数据==========
@@ -128,13 +131,13 @@ export default {
     },
 
     // ==========执行sql语句=========
-    onQuery () {
+    query () {
       if (!this.statement) {
         Message({ type: 'info', message: '询问语句不能为空' })
         return
       }
       this.queryLoading = true
-      query(this.currentDataBase, 'custom', this.statement)
+      emitQuery(this.currentDataBase, 'custom', this.statement)
     },
 
     // ==========改变侧边栏大小 移动开始==========

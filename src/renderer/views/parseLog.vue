@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-10-08 09:18:58
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-11 09:03:11
+ * @LastEditTime: 2021-10-11 13:39:06
 -->
 <template>
   <div class="d-parse-log center">
@@ -64,7 +64,7 @@
           </el-form-item>
         </template>
         <el-form-item>
-          <el-button type="primary" @click="submitForm" class="width-100" round>{{btnName}}</el-button>
+          <el-button :loading='loading' type="primary" @click="submitForm" class="width-100" round>{{btnName}}</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -98,6 +98,7 @@ export default {
 
   data () {
     return {
+      loading: false,
       form: {
         importDirectory: '',
         type: 1,
@@ -117,9 +118,11 @@ export default {
 
   created () {
     eventBus.$on('onDialog', this.setValue)
+    eventBus.$on('parse', this.parse)
 
     this.$once('hook:beforeDestroy', () => {
       eventBus.$off('onDialog', this.setValue)
+      eventBus.$off('parse', this.parse)
     })
   },
 
@@ -131,11 +134,16 @@ export default {
       this.$refs[type].blur()
     },
 
+    parse (res) {
+      this.loading = false
+    },
+
     onIpcDirectory (directory) {
       onDialog(directory)
     },
 
     submitForm () {
+      this.loading = true
       onParse(this.form)
     }
   }

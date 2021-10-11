@@ -3,15 +3,15 @@
  * @Author: zmt
  * @Date: 2021-09-26 16:28:18
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-11 08:58:58
+ * @LastEditTime: 2021-10-11 15:00:15
 -->
 <template>
   <div class="login-data-base" v-loading='loading'>
     <base-svg-icon :iconName="iconName" font-size='140px'></base-svg-icon>
     <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm">
-      <el-form-item prop="username">
+      <el-form-item prop="user">
         <el-input
-          v-model="ruleForm.username"
+          v-model="ruleForm.user"
           autocomplete="off"
           class="el-input__inner-radius"
           :placeholder="!isSQLite ? '用户名' : '文件地址'"
@@ -45,7 +45,7 @@
 <script>
 import { navList } from '@/common/aside'
 import eventBus from '@/util/eventBus'
-import { connection } from '@/ipc/database'
+import { emitConnect } from '@/ipc/database'
 import { mapGetters } from 'vuex'
 import BaseSvgIcon from '@/components/BaseSvgIcon.vue'
 export default {
@@ -63,9 +63,9 @@ export default {
 
     disabled () {
       if (this.isSQLite) {
-        return !this.ruleForm.username
+        return !this.ruleForm.user
       }
-      return !this.ruleForm.username || !this.ruleForm.password
+      return !this.ruleForm.user || !this.ruleForm.password
     },
 
     isSQLite () {
@@ -74,12 +74,10 @@ export default {
   },
 
   created () {
-    eventBus.$on('icpSuccess', this.connectSuccess)
-    eventBus.$on('icpError', this.error)
+    eventBus.$on('connect', this.onConnect)
 
     this.$once('hook:beforeDestroy', () => {
-      eventBus.$off('icpSuccess', this.connectSuccess)
-      eventBus.$off('icpError', this.error)
+      eventBus.$off('connect', this.onConnect)
     })
   },
 
@@ -88,7 +86,7 @@ export default {
       loading: false,
       rules: {},
       ruleForm: {
-        username: 'root',
+        user: 'root',
         password: '123456789',
         database: 'test'
       },
@@ -103,20 +101,18 @@ export default {
     submitForm () {
       this.loading = true
       if (this.currentDataBase === 'SQLite') {
-        connection(this.currentDataBase, this.ruleForm.username)
+        emitConnect(this.currentDataBase, this.ruleForm.user)
       } else {
-        connection(this.currentDataBase, this.ruleForm)
+        emitConnect(this.currentDataBase, this.ruleForm)
       }
     },
-    // 链接数据库成功
-    async connectSuccess () {
-      this.loading = false
-      await this.$store.dispatch('actionSqlIsLogin', { type: this.currentDataBase, value: true })
-      await this.$router.push({ path: '/querySQL', query: { type: this[this.currentDataBase] } })
-    },
 
-    error () {
+    async onConnect (res) {
       this.loading = false
+      if (res.code === 1) {
+        await this.$store.dispatch('actionSqlIsLogin', { type: this.currentDataBase, value: true })
+        await this.$router.push({ path: '/querySQL', query: { type: this[this.currentDataBase] } })
+      }
     }
   }
 }

@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-10-08 14:34:58
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-09 15:24:31
+ * @LastEditTime: 2021-10-11 12:01:59
  */
 import { ipcMain } from 'electron'
 import { parse } from '../parseLog/index'
@@ -13,7 +13,11 @@ import { parse } from '../parseLog/index'
  */
 export function ipc (mainWindow) {
   ipcMain.on('parse', async (event, form) => {
-    const res = await parse(form)
-    mainWindow.webContents.send('onDialog', res)
+    try {
+      const res = await parse(form)
+      mainWindow.webContents.send('parse', { code: 1, msg: '解析日志成功！', result: res })
+    } catch (e) {
+      mainWindow.webContents.send('parse', { code: 0, msg: '解析日志失败！', result: e })
+    }
   })
 }

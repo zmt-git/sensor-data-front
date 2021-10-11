@@ -3,9 +3,9 @@
  * @Author: zmt
  * @Date: 2021-09-27 13:55:21
  * @LastEditors: zmt
- * @LastEditTime: 2021-09-27 14:39:18
+ * @LastEditTime: 2021-10-11 09:25:23
  */
-import { oracleConfig } from './config.js'
+import { config } from '../config'
 
 const oracle = require('oracledb')
 
@@ -15,7 +15,7 @@ export function connectOracle (form, errFn, successFn) {
   oracle.getConnection({
     user: form.username,
     password: form.password,
-    connectString: `${oracleConfig.host}:${oracleConfig.port}/${form.database}`
+    connectString: `${config.host}:${config.port}/${form.database}`
   }, (err, c) => {
     if (err) {
       errFn(err)

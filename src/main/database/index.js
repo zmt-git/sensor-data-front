@@ -3,60 +3,45 @@
  * @Author: zmt
  * @Date: 2021-09-28 09:56:26
  * @LastEditors: zmt
- * @LastEditTime: 2021-09-30 14:00:52
+ * @LastEditTime: 2021-10-11 14:47:04
  */
-import { connectMySQL, queryMySQL, closeMySQL, exportMySQL, importMySQL } from './mysql'
-import { connectSQLite, querySQLite, closeSQLite } from './sqlite'
-import { connectOracle, queryOracle, closeOracle } from './oracle'
+import MySQL from './mysql'
+
+const sql = {
+  MySQL: null,
+  Oracle: null,
+  SQLite: null
+}
 
 const SQL = {
-  connection: {
-    MySQL: connectMySQL,
-    SQLite: connectSQLite,
-    Oracle: connectOracle
-  },
-  query: {
-    MySQL: queryMySQL,
-    SQLite: querySQLite,
-    Oracle: queryOracle
-  },
-  close: {
-    MySQL: closeMySQL,
-    SQLite: closeSQLite,
-    Oracle: closeOracle
-  },
-  exportExcel: {
-    MySQL: exportMySQL
-  },
-  importExcel: {
-    MySQL: importMySQL
-  }
+  MySQL
 }
 
 /**
  * @description链接数据库
  * @param {String} type 数据库类型
- * @param {Object} from 链接数据库config
+ * @param {Object} form 链接数据库config
+ * @return {Connection}
  */
-export function connectDatabase (type, from) {
-  return new Promise((resolve, reject) => {
-    SQL.connection[type](from, err => {
-      reject(err)
-    }, success => {
-      resolve(success)
-    })
-  })
+export async function connect (type, form) {
+  try {
+    sql[type] = new SQL[type](form)
+    await sql[type].connect()
+    return sql[type]
+  } catch (e) {
+    throw new Error(e)
+  }
 }
 
 /**
  * @description查询数据
  * @param {String} type 数据库类型
- * @param {String, Number} sign 标识码
+ * @param {*} sign 标识码
  * @param {String} statement 语句
  */
-export async function queryDatabase (type, sign, statement) {
+export async function query (type, sign, querySql) {
   try {
-    const res = await SQL.query[type](sign, statement)
+    const res = await sql[type].query(sign, querySql)
     return res
   } catch (e) {
     throw new Error(e)
@@ -67,44 +52,39 @@ export async function queryDatabase (type, sign, statement) {
  * @description关闭数据库
  * @param {String} type 数据库类型
  */
-export function closeDatabase (type) {
-  return new Promise((resolve, reject) => {
-    SQL.close[type](err => {
-      reject(err)
-    }, success => {
-      resolve(success)
-    })
-  })
+export async function close (type) {
+  try {
+    const res = await sql[type].close()
+    return res
+  } catch (e) {
+    throw new Error(e)
+  }
 }
 
 /**
  * @description导入数据excel
- * @param { String } 数据库类型
- * @param { String } 表名称
+ * @param { String } type 数据库类型
+ * @param { String } tabledName 表名称
  */
-export async function importExcel (type, name) {
+export async function importExcel (type, tabledName) {
   try {
-    const res = await SQL.importExcel[type](name)
+    const res = await sql[type].importExcel(tabledName)
     return res
-  } catch (err) {
-    console.error(err)
-
-    throw new Error(err)
+  } catch (e) {
+    throw new Error(e)
   }
 }
 
 /**
  * @description导出数据excel
- * @param { String } 数据库类型
- * @param { String } 表名称
+ * @param { String } type 数据库类型
+ * @param { String } tabledName 表名称
  */
-export async function exportExcel (type, name) {
+export async function exportExcel (type, tabledName) {
   try {
-    const res = await SQL.exportExcel[type](name)
+    const res = await sql[type].exportExcel(tabledName)
     return res
-  } catch (err) {
-    console.error(err)
-
-    throw new Error(err)
+  } catch (e) {
+    throw new Error(e)
   }
 }
