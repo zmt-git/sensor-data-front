@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-27 14:13:59
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-12 14:14:59
+ * @LastEditTime: 2021-10-12 14:52:53
  */
 import { exportExcel, importExcel } from '../utils'
 const sqlite3 = require('sqlite3').verbose()
@@ -55,7 +55,12 @@ export default class SQLite {
         if (err) {
           reject(err)
         }
-        resolve(res)
+        const arr = []
+
+        res.forEach(item => {
+          arr.push(item.name)
+        })
+        resolve(arr)
       })
     })
   }

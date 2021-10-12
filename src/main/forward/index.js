@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-10-09 15:21:49
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-12 14:14:12
+ * @LastEditTime: 2021-10-12 14:55:05
  */
 /**
  * 1.链接数据库
@@ -41,7 +41,7 @@ export async function forward (f) {
     // 链接源数据库
     const source = await connect(form.sourceDatabaseType, { ...config.forward[form.sourceDatabaseType], database: form.sourceConnectString })
     // 链接目标数据库
-    const target = await connect(form.targetDatabaseType, { ...config.forward[form.sourceDatabaseType], database: form.targetConnectString })
+    const target = await connect(form.targetDatabaseType, { ...config.forward[form.targetDatabaseType], database: form.targetConnectString })
 
     await startForward(source, target, form)
   } catch (e) {
@@ -62,9 +62,7 @@ async function startForward (source, target, form) {
     throw new Error(`${form.sourceTableName} and ${form.targetTableName} fields do not match`)
   }
 
-  targetColumn.forEach(item => {
-    keys.push(item.Field)
-  })
+  keys = targetColumn
 
   await insertData(source, target)
 }
@@ -73,7 +71,7 @@ function isSame (source, target) {
   if (source.length !== target.length) return false
 
   for (const obj of source) {
-    const res = target.find(item => item.Field === obj.Field)
+    const res = target.find(item => item === obj)
     if (!res) {
       return false
     }
@@ -90,7 +88,6 @@ async function insertData (source, target) {
   const cacheArr = []
   try {
     const res = await source.selectLimit(form.sourceTableName, pageNum, pageSize)
-
     res.forEach(item => {
       const arr = []
       Object.keys(item).forEach(key => {
@@ -106,6 +103,7 @@ async function insertData (source, target) {
 
       await insertData(source, target)
     } else {
+      await source.close()
       await handleUnInsertData(target)
     }
   } catch (e) {
@@ -121,6 +119,7 @@ async function insertData (source, target) {
 async function insertBatchData (target, cacheArr) {
   try {
     await target.insertBatch(form.targetTableName, keys, cacheArr)
+    await target.close()
   } catch (e) {
     unInsertData.push(cacheArr)
     throw new Error(e)

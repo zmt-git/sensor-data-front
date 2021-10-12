@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-27 13:33:58
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-12 11:43:32
+ * @LastEditTime: 2021-10-12 14:52:31
  */
 import { config } from '../config'
 import { exportExcel, importExcel } from '../utils'
@@ -70,7 +70,12 @@ export default class MySQL {
         if (err) {
           reject(err)
         }
-        resolve(res)
+        const arr = []
+
+        res.forEach(item => {
+          arr.push(item.Field)
+        })
+        resolve(arr)
       })
     })
   }
