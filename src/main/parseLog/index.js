@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-10-08 13:47:44
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-11 11:59:23
+ * @LastEditTime: 2021-10-12 14:25:35
  */
 // 选取目录 -> 获取目录.log文件 -> 读取文件
 // 读取文件 -> 按行读取 -> 解析
@@ -130,7 +130,7 @@ function exportTxt (jsonString, form) {
 export async function intoDatabase (jsonString, form) {
   try {
     const res = JSON.parse(jsonString)
-    const sql = await connect(form.databaseType, { username: 'root', password: '123456789', database: form.connectString })
+    const sql = await connect(form.databaseType, { user: 'root', password: '123456789', database: form.connectString })
     const keys = Object.keys(res.column)
 
     const values = []

@@ -3,16 +3,12 @@
  * @Author: zmt
  * @Date: 2021-09-27 13:33:58
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-11 16:51:37
+ * @LastEditTime: 2021-10-12 11:43:32
  */
-import { openFileSync } from '../utils/file'
 import { config } from '../config'
+import { exportExcel, importExcel } from '../utils'
 
 const mysql = require('mysql')
-const nodeExcel = require('excel-export')
-const fs = require('fs')
-const path = require('path')
-const xlsx = require('node-xlsx')
 export default class MySQL {
   constructor (form) {
     this.connection = null
@@ -46,32 +42,36 @@ export default class MySQL {
    */
   query (sign, querySql) {
     return new Promise((resolve, reject) => {
-      try {
-        this.connection.query(querySql, (err, result) => {
-          if (err) {
-            reject(err)
-            return
-          }
-          resolve({ result, sign })
-        })
-      } catch (err) {
-        reject(err)
-      }
+      this.connection.query(querySql, (err, result) => {
+        if (err) {
+          reject(err)
+          return
+        }
+        resolve({ result, sign })
+      })
     })
+  }
+
+  async getTableName () {
+    const res = await this.query('show', 'show tables')
+
+    const result = []
+
+    res.result.forEach(item => {
+      result.push(item[`Tables_in_${this.form.database}`])
+    })
+
+    return result
   }
 
   async getColum (tabledName) {
     return new Promise((resolve, reject) => {
-      try {
-        this.connection.query(`SHOW COLUMNS FROM ${tabledName}`, (err, res) => {
-          if (err) {
-            reject(err)
-          }
-          resolve(res)
-        })
-      } catch (err) {
-        reject(err)
-      }
+      this.connection.query(`SHOW COLUMNS FROM ${tabledName}`, (err, res) => {
+        if (err) {
+          reject(err)
+        }
+        resolve(res)
+      })
     })
   }
 
@@ -83,79 +83,59 @@ export default class MySQL {
    */
   insertOne (tabledName, keys, data) {
     return new Promise((resolve, reject) => {
-      try {
-        this.connection.query(`INSERT INTO ${tabledName} (${keys.join(',')}) VALUES (${data.join(',')})`, (err, res) => {
-          if (err) {
-            reject(err)
-          }
-          resolve(res)
-        })
-      } catch (err) {
-        reject(err)
-      }
+      this.connection.query(`INSERT INTO ${tabledName} (${keys.join(',')}) VALUES (${data.join(',')})`, (err, res) => {
+        if (err) {
+          reject(err)
+        }
+        resolve(res)
+      })
     })
   }
 
   insertBatch (tabledName, keys, data) {
     const sql = `INSERT INTO ${tabledName} (${keys.join(',')}) VALUES ?`
     return new Promise((resolve, reject) => {
-      try {
-        this.connection.query(sql, [data], (err, res) => {
-          if (err) {
-            reject(err)
-          }
-          resolve(res)
-        })
-      } catch (err) {
-        reject(err)
-      }
+      this.connection.query(sql, [data], (err, res) => {
+        if (err) {
+          reject(err)
+        }
+        resolve(res)
+      })
     })
   }
 
   selectAll (tabledName) {
     return new Promise((resolve, reject) => {
-      try {
-        this.connection.query(`SELECT * FROM ${tabledName}`, (err, res) => {
-          if (err) {
-            reject(err)
-          }
-          resolve(res)
-        })
-      } catch (err) {
-        reject(err)
-      }
+      this.connection.query(`SELECT * FROM ${tabledName}`, (err, res) => {
+        if (err) {
+          reject(err)
+        }
+        resolve(res)
+      })
     })
   }
 
   selectLimit (tabledName, pageNum, pageSize) {
     return new Promise((resolve, reject) => {
-      try {
-        this.connection.query(`SELECT * FROM ${tabledName} LIMIT ${(pageNum - 1) * pageSize}, ${pageNum * pageSize}`, (err, res) => {
-          if (err) {
-            reject(err)
-          }
-          resolve(res)
-        })
-      } catch (err) {
-        reject(err)
-      }
+      this.connection.query(`SELECT * FROM ${tabledName} LIMIT ${(pageNum - 1) * pageSize}, ${pageNum * pageSize}`, (err, res) => {
+        if (err) {
+          reject(err)
+        }
+        resolve(res)
+      })
     })
   }
 
   // 关闭数据库链接
   close () {
     return new Promise((resolve, reject) => {
-      try {
-        this.connection.end((err) => {
-          if (err) {
-            reject(err)
-          }
-          resolve()
-          this.connection = null
-        })
-      } catch (err) {
-        reject(err)
-      }
+      this.connection.end((err) => {
+        if (err) {
+          reject(err)
+        }
+        resolve()
+        this.connection = null
+      })
     })
   }
 
@@ -181,7 +161,7 @@ export default class MySQL {
 
       const data = await this.selectAll(tabledName)
 
-      data.result.forEach(item => {
+      data.forEach(item => {
         const row = []
         conf.cols.forEach(key => {
           row.push(item[key.caption])
@@ -189,17 +169,10 @@ export default class MySQL {
         conf.rows.push(row)
       })
 
-      const result = nodeExcel.execute(conf)
+      const res = await exportExcel(conf)
 
-      if (!fs.existsSync(config.savePath)) {
-        fs.mkdirSync(config.savePath)
-      }
-
-      fs.writeFileSync(`${config.savePath}/${tabledName}.xlsx`, result, 'binary')
-
-      return `/${config.savePath}/${tabledName}`
+      return res
     } catch (err) {
-      console.error(err)
       return Promise.reject(err)
     }
   }
@@ -210,29 +183,11 @@ export default class MySQL {
    */
   async importExcel (tabledName) {
     try {
-      const filePath = openFileSync()
-      if (!filePath) {
-        return Promise.reject(new Error('file is not exist'))
-      }
+      const { fields, data } = importExcel()
 
-      if (filePath && path.extname(filePath[0]) !== '.xlsx') {
-        throw new Error('文件类型不是xlsx')
-      }
+      const res = this.insertBatch(tabledName, fields, data)
 
-      const workSheetsFromBuffer = xlsx.parse(filePath[0])
-      if (!workSheetsFromBuffer.length) {
-        return Promise.reject(new Error('未读取到数据源'))
-      }
-
-      const field = workSheetsFromBuffer[0].data.shift().toString()
-
-      const p = []
-
-      workSheetsFromBuffer[0].data.forEach(async item => {
-        p.push(this.insertOne(tabledName, field, item))
-      })
-
-      return Promise.all(p)
+      return res
     } catch (err) {
       return Promise.reject(err)
     }

@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-29 09:02:28
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-11 15:03:20
+ * @LastEditTime: 2021-10-12 11:17:30
 -->
 <template>
   <div class="d-sql" @mouseup="onCancelMove">
@@ -29,7 +29,7 @@ import SQLAside from '@/components/SQL/SQLAside.vue'
 import SQLHeader from '@/components/SQL/SQLHeader.vue'
 import SQLQuery from '@/components/SQL/SQLQuery.vue'
 import SQLTable from '@/components/SQL/SQLTable.vue'
-import { emitQuery } from '@/ipc/database'
+import { emitQuery, emitGetTableName } from '@/ipc/database'
 import eventBus from '@/util/eventBus'
 import { Message } from 'element-ui'
 export default {
@@ -55,11 +55,13 @@ export default {
     this.onShowTables()
 
     eventBus.$on('query', this.onQuery)
+    eventBus.$on('getTableName', this.getTableName)
     eventBus.$on('importExcel', this.onImportExcel)
 
     this.$once('hook:beforeDestroy', () => {
       eventBus.$off('query', this.onQuery)
       eventBus.$off('importExcel', this.onImportExcel)
+      eventBus.$off('getTableName', this.getTableName)
     })
   },
 
@@ -74,8 +76,6 @@ export default {
       if (res.code === 1) {
         let fn
         switch (res.result.sign) {
-          case 'show' : fn = this.setTables
-            break
           case 'selectAll' : fn = this.setTableData
             break
           case 'custom' : fn = this.getTableData
@@ -89,6 +89,11 @@ export default {
       }
     },
 
+    getTableName (res) {
+      console.log(res)
+      this.tableList = res.result
+    },
+
     // ==========导入数据成功==========
     importExcel (res) {
       if (res.code === 1) {
@@ -98,18 +103,7 @@ export default {
 
     // ==========获取表list数据==========
     onShowTables () {
-      emitQuery(this.currentDataBase, 'show', 'show tables')
-    },
-
-    // ==========设置表list数据==========
-    setTables (result) {
-      this.tableList = []
-      result.result.forEach(item => {
-        this.tableList.push(item.Tables_in_test)
-      })
-      if (this.tableList.length > 0) {
-        this.onCurrentTable(this.tableList[0])
-      }
+      emitGetTableName(this.currentDataBase)
     },
 
     // ==========获取表指定表数据==========

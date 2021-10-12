@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-10-09 15:21:49
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-11 17:16:15
+ * @LastEditTime: 2021-10-12 14:14:12
  */
 /**
  * 1.链接数据库
@@ -41,7 +41,7 @@ export async function forward (f) {
     // 链接源数据库
     const source = await connect(form.sourceDatabaseType, { ...config.forward[form.sourceDatabaseType], database: form.sourceConnectString })
     // 链接目标数据库
-    const target = await connect(form.targetDatabaseType, { ...config.forward[form.sourceDatabaseType], database: form.sourceConnectString })
+    const target = await connect(form.targetDatabaseType, { ...config.forward[form.sourceDatabaseType], database: form.targetConnectString })
 
     await startForward(source, target, form)
   } catch (e) {

@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-10-08 10:44:15
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-09 11:50:27
+ * @LastEditTime: 2021-10-12 09:50:50
  */
 import eventBus from '@/util/eventBus'
 import { ipcRenderer } from 'electron'
@@ -19,6 +19,6 @@ export function remove () {
   ipcRenderer.removeListener('onDialog', onDialogRes)
 }
 
-export function onDialog (type) {
-  ipcRenderer.send('onDialog', type)
+export function onDialog (type, obj) {
+  ipcRenderer.send('onDialog', type, obj)
 }

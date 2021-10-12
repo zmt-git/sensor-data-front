@@ -3,9 +3,11 @@
  * @Author: zmt
  * @Date: 2021-09-28 09:56:26
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-11 14:47:04
+ * @LastEditTime: 2021-10-12 11:25:38
  */
 import MySQL from './mysql'
+import Oracle from './oracle'
+import SQLite from './sqlite'
 
 const sql = {
   MySQL: null,
@@ -13,9 +15,7 @@ const sql = {
   SQLite: null
 }
 
-const SQL = {
-  MySQL
-}
+const SQL = { MySQL, Oracle, SQLite }
 
 /**
  * @description链接数据库
@@ -42,6 +42,15 @@ export async function connect (type, form) {
 export async function query (type, sign, querySql) {
   try {
     const res = await sql[type].query(sign, querySql)
+    return res
+  } catch (e) {
+    throw new Error(e)
+  }
+}
+
+export async function getTableName (type) {
+  try {
+    const res = await sql[type].getTableName()
     return res
   } catch (e) {
     throw new Error(e)

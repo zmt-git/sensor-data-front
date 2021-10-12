@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-10-08 09:17:40
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-11 17:15:17
+ * @LastEditTime: 2021-10-12 14:07:14
 -->
 <template>
   <div class="d-update-data">
@@ -22,11 +22,14 @@
             </el-select>
           </el-form-item>
           <el-form-item>
-            <el-input
-              class="el-input__inner-radius"
-              v-model="form.sourceConnectString "
-              :style="style"
-              placeholder="链接字符串"></el-input>
+            <div @click='openFileDB(1)'>
+              <el-input
+                ref='1'
+                class="el-input__inner-radius"
+                v-model="form.sourceConnectString "
+                :style="style"
+                placeholder="链接字符串"></el-input>
+            </div>
           </el-form-item>
           <el-form-item>
             <el-input
@@ -60,11 +63,14 @@
             </el-select>
           </el-form-item>
           <el-form-item>
-            <el-input
-              class="el-input__inner-radius"
-              v-model="form.targetConnectString "
-              :style="style"
-              placeholder="链接字符串"></el-input>
+            <div @click='openFileDB(2)'>
+              <el-input
+                ref='2'
+                class="el-input__inner-radius"
+                v-model="form.targetConnectString "
+                :style="style"
+                placeholder="链接字符串"></el-input>
+            </div>
           </el-form-item>
           <el-form-item>
             <el-input
@@ -81,9 +87,10 @@
 <script>
 import { navList } from '@/common/aside'
 import BaseSvgIcon from '@/components/BaseSvgIcon.vue'
+import { message } from '@/util'
 import eventBus from '@/util/eventBus'
 import { onForward } from '@/ipc/updateData'
-import { message } from '@/util'
+import { onDialog } from '@/ipc/dialog'
 export default {
   name: 'update-data',
 
@@ -113,6 +120,12 @@ export default {
 
   created () {
     eventBus.$on('forward', this.forward)
+    eventBus.$on('onDialog', this.setValue)
+
+    this.$once('hook:beforeDestroy', () => {
+      eventBus.$off('forward', this.forward)
+      eventBus.$off('onDialog', this.setValue)
+    })
   },
 
   methods: {
@@ -123,6 +136,25 @@ export default {
     forward (res) {
       this.loading = false
       message(res)
+      console.log(res)
+    },
+
+    setValue (type, res) {
+      const val = res.pop()
+      type === 1 ? this.form.sourceConnectString = val : this.form.targetConnectString = val
+      this.$refs[type].blur()
+    },
+
+    openFileDB (type) {
+      if ((type === 1 && this.form.sourceDatabaseType === 'SQLite') || (type === 2 && this.form.targetDatabaseType === 'SQLite')) {
+        const obj = {
+          properties: ['openFile'],
+          filters: [
+            { name: 'db', extensions: ['db'] }
+          ]
+        }
+        onDialog(type, obj)
+      }
     }
   }
 }

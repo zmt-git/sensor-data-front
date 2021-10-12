@@ -3,13 +3,13 @@
  * @Author: zmt
  * @Date: 2021-09-26 16:28:18
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-11 15:00:15
+ * @LastEditTime: 2021-10-12 14:03:55
 -->
 <template>
   <div class="login-data-base" v-loading='loading'>
     <base-svg-icon :iconName="iconName" font-size='140px'></base-svg-icon>
     <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm">
-      <el-form-item prop="user">
+      <el-form-item prop="user" v-if="!isSQLite">
         <el-input
           v-model="ruleForm.user"
           autocomplete="off"
@@ -27,13 +27,16 @@
           :style='style'
           placeholder='密码'></el-input>
       </el-form-item>
-       <el-form-item prop="database" v-if="!isSQLite">
-        <el-input
-          v-model="ruleForm.database"
-          autocomplete="off"
-          class="el-input__inner-radius"
-          :style='style'
-          placeholder="链接字符串"></el-input>
+       <el-form-item prop="database">
+        <div @click="openFileDB">
+          <el-input
+            ref='database'
+            v-model="ruleForm.database"
+            autocomplete="off"
+            class="el-input__inner-radius"
+            :style='style'
+            :placeholder="!isSQLite ? '链接字符串' : '文件地址'"></el-input>
+          </div>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" :disabled='disabled' @click="submitForm()" class="width-100" round>登录</el-button>
@@ -44,10 +47,12 @@
 
 <script>
 import { navList } from '@/common/aside'
-import eventBus from '@/util/eventBus'
 import { emitConnect } from '@/ipc/database'
 import { mapGetters } from 'vuex'
 import BaseSvgIcon from '@/components/BaseSvgIcon.vue'
+import { onDialog } from '@/ipc/dialog'
+import eventBus from '@/util/eventBus'
+
 export default {
   name: 'login-data-base',
 
@@ -63,7 +68,7 @@ export default {
 
     disabled () {
       if (this.isSQLite) {
-        return !this.ruleForm.user
+        return !this.ruleForm.database
       }
       return !this.ruleForm.user || !this.ruleForm.password
     },
@@ -75,9 +80,11 @@ export default {
 
   created () {
     eventBus.$on('connect', this.onConnect)
+    eventBus.$on('onDialog', this.setPath)
 
     this.$once('hook:beforeDestroy', () => {
       eventBus.$off('connect', this.onConnect)
+      eventBus.$off('onDialog', this.setPath)
     })
   },
 
@@ -100,11 +107,7 @@ export default {
     // 链接数据库
     submitForm () {
       this.loading = true
-      if (this.currentDataBase === 'SQLite') {
-        emitConnect(this.currentDataBase, this.ruleForm.user)
-      } else {
-        emitConnect(this.currentDataBase, this.ruleForm)
-      }
+      emitConnect(this.currentDataBase, this.ruleForm)
     },
 
     async onConnect (res) {
@@ -113,6 +116,23 @@ export default {
         await this.$store.dispatch('actionSqlIsLogin', { type: this.currentDataBase, value: true })
         await this.$router.push({ path: '/querySQL', query: { type: this[this.currentDataBase] } })
       }
+    },
+
+    openFileDB () {
+      if (this.isSQLite) {
+        const obj = {
+          properties: ['openFile'],
+          filters: [
+            { name: 'Txt', extensions: ['db'] }
+          ]
+        }
+        onDialog('sqlite', obj)
+      }
+    },
+
+    setPath (type, value) {
+      this.ruleForm.database = value.shift()
+      this.$refs.database.blur()
     }
   }
 }

@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-27 15:57:21
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-11 17:14:53
+ * @LastEditTime: 2021-10-12 11:19:37
  */
 import { ipcRenderer } from 'electron'
 import eventBus from '@/util/eventBus'
@@ -15,6 +15,10 @@ function onConnect (event, res) {
 
 function onQuery (event, res) {
   eventBus.$emit('query', res)
+}
+
+function getTableName (event, res) {
+  eventBus.$emit('getTableName', res)
 }
 
 function onClose (event, res) {
@@ -38,6 +42,8 @@ export function register (e) {
 
   ipcRenderer.on('query', onQuery)
 
+  ipcRenderer.on('getTableName', getTableName)
+
   ipcRenderer.on('close', onClose)
 
   ipcRenderer.on('exportExcel', onExportExcel)
@@ -51,6 +57,7 @@ export function register (e) {
 export function remove () {
   ipcRenderer.removeListener('connect', onConnect)
   ipcRenderer.removeListener('query', onQuery)
+  ipcRenderer.removeListener('getTableName', getTableName)
   ipcRenderer.removeListener('close', onClose)
   ipcRenderer.removeListener('exportExcel', onExportExcel)
   ipcRenderer.removeListener('importExcel', onImportExcel)
@@ -71,6 +78,10 @@ export function emitConnect (type, form) {
  */
 export function emitQuery (type, sign, querySql) {
   ipcRenderer.send('query', type, sign, querySql)
+}
+
+export function emitGetTableName (type) {
+  ipcRenderer.send('getTableName', type)
 }
 
 /**

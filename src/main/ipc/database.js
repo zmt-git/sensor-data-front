@@ -3,10 +3,10 @@
  * @Author: zmt
  * @Date: 2021-10-08 10:19:05
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-11 11:06:03
+ * @LastEditTime: 2021-10-12 11:18:52
  */
 import { ipcMain } from 'electron'
-import { connect, query, close, importExcel, exportExcel } from '../database/index'
+import { connect, query, getTableName, close, importExcel, exportExcel } from '../database'
 /**
  * @description数据库操作
  * @param {BrowserWindow} mainWindow
@@ -31,6 +31,17 @@ export function ipc (mainWindow) {
     } catch (err) {
       console.warn(err)
       mainWindow.webContents.send('query', { code: 0, msg: `${type}-语句执行失败`, result: err })
+    }
+  })
+
+  // 获取数据库表名称
+  ipcMain.on('getTableName', async (event, type) => {
+    try {
+      const result = await getTableName(type)
+      mainWindow.webContents.send('getTableName', { code: 1, msg: `${type}-获取成功`, result: result })
+    } catch (err) {
+      console.warn(err)
+      mainWindow.webContents.send('getTableName', { code: 0, msg: `${type}-获取失败`, result: err })
     }
   })
 

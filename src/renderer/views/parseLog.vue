@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-10-08 09:18:58
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-11 13:39:06
+ * @LastEditTime: 2021-10-12 14:18:57
 -->
 <template>
   <div class="d-parse-log center">
@@ -56,11 +56,13 @@
             </el-select>
           </el-form-item>
           <el-form-item>
-            <el-input
-              class="el-input__inner-radius"
-              v-model="form.connectString "
-              :style="style"
-              placeholder="链接字符串"></el-input>
+            <div @click='openFileDB("connectString")'>
+              <el-input
+                class="el-input__inner-radius"
+                v-model="form.connectString "
+                :style="style"
+                placeholder="链接字符串"></el-input>
+            </div>
           </el-form-item>
         </template>
         <el-form-item>
@@ -139,12 +141,32 @@ export default {
     },
 
     onIpcDirectory (directory) {
-      onDialog(directory)
+      let properties = ['openDirectory']
+      let filters = []
+      if (directory === 'exportDirectory') {
+        properties = ['openFile']
+        filters = [
+          { name: 'Txt', extensions: ['txt'] }
+        ]
+      }
+      onDialog(directory, { properties, filters })
     },
 
     submitForm () {
       this.loading = true
       onParse(this.form)
+    },
+
+    openFileDB (type) {
+      if (this.form.databaseType === 'SQLite') {
+        const obj = {
+          properties: ['openFile'],
+          filters: [
+            { name: 'db', extensions: ['db'] }
+          ]
+        }
+        onDialog(type, obj)
+      }
     }
   }
 }
