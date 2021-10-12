@@ -1831,6 +1831,11 @@ amdefine@>=0.0.4:
   resolved "https://registry.nlark.com/amdefine/download/amdefine-1.0.1.tgz#4a5282ac164729e93619bcfd3ad151f817ce91f5"
   integrity sha1-SlKCrBZHKek2Gbz9OtFR+BfOkfU=
 
+animate.css@^4.1.1:
+  version "4.1.1"
+  resolved "https://registry.nlark.com/animate.css/download/animate.css-4.1.1.tgz#614ec5a81131d7e4dc362a58143f7406abd68075"
+  integrity sha1-YU7FqBEx1+TcNipYFD90BqvWgHU=
+
 ansi-align@^3.0.0:
   version "3.0.1"
   resolved "https://registry.npmmirror.com/ansi-align/download/ansi-align-3.0.1.tgz?cache=0&sync_timestamp=1632743673432&other_urls=https%3A%2F%2Fregistry.npmmirror.com%2Fansi-align%2Fdownload%2Fansi-align-3.0.1.tgz#0cdf12e111ace773a86e9a1fad1225c43cb19a59"

@@ -3,11 +3,11 @@
  * @Author: zmt
  * @Date: 2021-09-26 11:56:42
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-08 11:49:48
+ * @LastEditTime: 2021-10-12 15:46:21
 -->
 <template>
   <div class="d-layout">
-    <d-header></d-header>
+    <d-header @onClick="onClickHeader"></d-header>
     <section class="d-layout-section">
       <aside class="d-layout-aside">
         <div class="d-layout-aside-top">
@@ -20,6 +20,9 @@
       <main class="d-layout-content">
         <router-view></router-view>
       </main>
+      <transition name="el-fade-in-linear">
+        <d-setting v-show="drawer" :visible.sync='drawer'></d-setting>
+      </transition>
     </section>
   </div>
 </template>
@@ -31,11 +34,12 @@ import AsideNavItem from '@/components/AsideNavItem.vue'
 import DHeader from '@/components/Header.vue'
 import { ipcRenderer } from 'electron'
 import eventBus from '@/util/eventBus'
+import DSetting from '../components/Setting.vue'
 
 export default {
   name: 'd-layout',
 
-  components: { AsideNavItem, DHeader },
+  components: { AsideNavItem, DHeader, DSetting },
 
   computed: {
     ...mapGetters(['Oracle', 'MySQL', 'SQLite', 'currentDataBase']),
@@ -49,7 +53,8 @@ export default {
     return {
       iconValue: '',
       navList: navList,
-      iconList: iconList
+      iconList: iconList,
+      drawer: false
     }
   },
 
@@ -77,6 +82,12 @@ export default {
       } else {
         this.$router.push({ path: e.path, query: { type: e.id } })
       }
+    },
+
+    onClickHeader (item) {
+      if (item.title === '设置') {
+        this.drawer = true
+      }
     }
   }
 }
@@ -95,6 +106,7 @@ export default {
     display: flex;
     overflow-x: hidden;
     overflow-y: auto;
+    position: relative;
   }
   &-aside{
     -webkit-app-region: drag;

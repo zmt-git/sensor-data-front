@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-27 08:54:37
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-08 11:58:16
+ * @LastEditTime: 2021-10-12 15:37:32
 -->
 <template>
   <header class="d-header" :style="{ backgroundColor: bg }">
@@ -111,6 +111,8 @@ export default {
     onClickInfo (item) {
       if (item.title === '退出') {
         this.logout()
+      } else {
+        this.$emit('onClick', item)
       }
     },
     // 退出登录

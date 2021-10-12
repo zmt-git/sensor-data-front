@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-29 09:02:28
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-12 11:17:30
+ * @LastEditTime: 2021-10-12 15:15:53
 -->
 <template>
   <div class="d-sql" @mouseup="onCancelMove">
@@ -155,6 +155,15 @@ export default {
     setElementWidth (e) {
       const element = this.getElement()
       element.style.width = e.clientX - element.getBoundingClientRect().left + 'px'
+    }
+  },
+
+  watch: {
+    '$route' (to, from) {
+      this.onShowTables()
+      this.statement = ''
+      this.tableData = []
+      this.$store.dispatch('actionsCurrentTableName', '')
     }
   }
 }

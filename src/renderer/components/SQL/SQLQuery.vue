@@ -3,17 +3,18 @@
  * @Author: zmt
  * @Date: 2021-09-29 08:44:43
  * @LastEditors: zmt
- * @LastEditTime: 2021-09-29 14:02:13
+ * @LastEditTime: 2021-10-12 15:26:00
 -->
 <template>
   <div class="d-sql-query">
     <ul class='d-sql-query-tabs'>
       <li class="tab-active" v-for="item in tabs" :key="item.id" @click='handleClick(item)'>{{item.title}}</li>
     </ul>
-    <el-input class="d-sql-query-input" :autofocus='true' :rows="3" :value="value" @input="onInput" type="textarea"></el-input>
+    <el-input :disabled='disabled' class="d-sql-query-input" :autofocus='true' :rows="3" :value="value" @input="onInput" type="textarea"></el-input>
   </div>
 </template>
 <script>
+import { mapGetters } from 'vuex'
 export default {
   name: 'd-tab-content',
   props: {
@@ -25,6 +26,13 @@ export default {
     },
     value: {
       default: null
+    }
+  },
+
+  computed: {
+    ...mapGetters(['currentTableName']),
+    disabled () {
+      return !this.currentTableName
     }
   },
 

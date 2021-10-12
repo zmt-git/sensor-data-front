@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-26 16:28:18
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-12 14:03:55
+ * @LastEditTime: 2021-10-12 15:12:46
 -->
 <template>
   <div class="login-data-base" v-loading='loading'>
@@ -114,7 +114,7 @@ export default {
       this.loading = false
       if (res.code === 1) {
         await this.$store.dispatch('actionSqlIsLogin', { type: this.currentDataBase, value: true })
-        await this.$router.push({ path: '/querySQL', query: { type: this[this.currentDataBase] } })
+        await this.$router.push({ path: '/querySQL', query: { type: this.currentDataBase } })
       }
     },
 

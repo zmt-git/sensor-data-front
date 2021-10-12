@@ -4,8 +4,9 @@ import router from '@/router'
 import store from '@/store'
 import ElementUI from 'element-ui'
 import { registerIpcRenderer } from '@/ipc/index'
-import '@/styles/index.scss'
 import 'element-ui/lib/theme-chalk/index.css'
+import 'animate.css'
+import '@/styles/index.scss'
 
 registerIpcRenderer()
 

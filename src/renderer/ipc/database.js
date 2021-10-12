@@ -3,13 +3,14 @@
  * @Author: zmt
  * @Date: 2021-09-27 15:57:21
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-12 11:19:37
+ * @LastEditTime: 2021-10-12 14:58:41
  */
 import { ipcRenderer } from 'electron'
 import eventBus from '@/util/eventBus'
 import { message } from '@/util'
 
 function onConnect (event, res) {
+  message(res)
   eventBus.$emit('connect', res)
 }
 
