@@ -3,12 +3,30 @@
  * @Author: zmt
  * @Date: 2021-09-26 16:28:18
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-12 15:12:46
+ * @LastEditTime: 2021-10-13 09:46:17
 -->
 <template>
   <div class="login-data-base" v-loading='loading'>
     <base-svg-icon :iconName="iconName" font-size='140px'></base-svg-icon>
     <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm">
+      <el-form-item prop="host" v-if="!isSQLite">
+        <el-input
+          v-model="ruleForm.host"
+          autocomplete="off"
+          class="el-input__inner-radius"
+          placeholder="主机"
+          :style='style'
+          ></el-input>
+      </el-form-item>
+      <el-form-item prop="port" v-if="!isSQLite">
+        <el-input
+          v-model="ruleForm.port"
+          autocomplete="off"
+          class="el-input__inner-radius"
+          placeholder="端口"
+          :style='style'
+          ></el-input>
+      </el-form-item>
       <el-form-item prop="user" v-if="!isSQLite">
         <el-input
           v-model="ruleForm.user"
@@ -27,11 +45,11 @@
           :style='style'
           placeholder='密码'></el-input>
       </el-form-item>
-       <el-form-item prop="database">
+       <el-form-item prop="connectString">
         <div @click="openFileDB">
           <el-input
-            ref='database'
-            v-model="ruleForm.database"
+            ref='connectString'
+            v-model="ruleForm.connectString"
             autocomplete="off"
             class="el-input__inner-radius"
             :style='style'
@@ -68,7 +86,7 @@ export default {
 
     disabled () {
       if (this.isSQLite) {
-        return !this.ruleForm.database
+        return !this.ruleForm.connectString
       }
       return !this.ruleForm.user || !this.ruleForm.password
     },
@@ -93,9 +111,11 @@ export default {
       loading: false,
       rules: {},
       ruleForm: {
+        host: '',
+        port: '',
         user: 'root',
         password: '123456789',
-        database: 'test'
+        connectString: 'test'
       },
       style: {
         width: '300px'
@@ -131,8 +151,8 @@ export default {
     },
 
     setPath (type, value) {
-      this.ruleForm.database = value.shift()
-      this.$refs.database.blur()
+      this.ruleForm.connectString = value.shift()
+      this.$refs.connectString.blur()
     }
   }
 }

@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-27 14:13:59
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-12 14:52:53
+ * @LastEditTime: 2021-10-13 09:44:11
  */
 import { exportExcel, importExcel } from '../utils'
 const sqlite3 = require('sqlite3').verbose()
@@ -17,11 +17,11 @@ export default class SQLite {
 
   connect () {
     return new Promise((resolve, reject) => {
-      if (fs.existsSync(this.form.database)) {
-        this.connection = new sqlite3.Database(this.form.database)
+      if (fs.existsSync(this.form.connectString)) {
+        this.connection = new sqlite3.Database(this.form.connectString)
         resolve(this.connection)
       } else {
-        return reject(new Error(`${this.form.database} is not exist`))
+        return reject(new Error(`${this.form.connectString} is not exist`))
       }
     })
   }

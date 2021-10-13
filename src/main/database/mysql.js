@@ -3,9 +3,8 @@
  * @Author: zmt
  * @Date: 2021-09-27 13:33:58
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-12 14:52:31
+ * @LastEditTime: 2021-10-13 10:04:27
  */
-import { config } from '../config'
 import { exportExcel, importExcel } from '../utils'
 
 const mysql = require('mysql')
@@ -19,10 +18,11 @@ export default class MySQL {
   connect () {
     return new Promise((resolve, reject) => {
       this.connection = mysql.createConnection({
-        host: config.host,
+        host: this.form.host,
+        port: this.form.port || '3306',
         user: this.form.user,
         password: this.form.password,
-        database: this.form.database ? this.form.database : ''
+        database: this.form.connectString ? this.form.connectString : ''
       })
 
       this.connection.connect((err) => {
@@ -58,7 +58,7 @@ export default class MySQL {
     const result = []
 
     res.result.forEach(item => {
-      result.push(item[`Tables_in_${this.form.database}`])
+      result.push(item[`Tables_in_${this.form.connectString}`])
     })
 
     return result

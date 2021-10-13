@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-10-09 15:21:49
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-12 14:55:05
+ * @LastEditTime: 2021-10-13 10:16:55
  */
 /**
  * 1.链接数据库
@@ -14,128 +14,104 @@
 import { connect } from '../database'
 import { config } from '../config'
 const fs = require('fs')
-let pageSize = 100
-let pageNum = 1
-let form
-let sourceColumn = []
-let targetColumn = []
-let keys = []
-let unInsertData = []
-/**
- * @description数据实时转发
- * @param {Object} form {
- *      sourceDatabaseType: '',
-        sourceConnectString: '',
-        sourceTableName: '',
-        targetDatabaseType: '',
-        targetConnectString: '',
-        targetTableName: ''
+export default class ForwardsDatabase {
+  constructor (source, target) {
+    this.sourceForm = source
+    this.targetForm = target
+    this.sourceConnection = null
+    this.targetConnection = null
+    this.sourceColumn = []
+    this.targetColumn = []
+    this.unInsertData = []
+    this.pageNum = 1
+    this.pageSize = 100
+  }
+
+  async connect () {
+    try {
+      // 链接源数据库
+      this.sourceConnection = await connect(this.sourceForm.databaseType, this.sourceForm)
+      // 链接目标数据库
+      this.targetConnection = await connect(this.targetForm.databaseType, this.targetForm)
+
+      await this.startForward()
+    } catch (e) {
+      throw new Error(e)
+    }
+  }
+
+  async startForward () {
+    this.sourceColumn = await this.sourceConnection.getColum(this.sourceForm.tableName)
+
+    this.targetColumn = await this.targetConnection.getColum(this.targetForm.tableName)
+
+    if (this.sourceColumn.length === 0 || this.targetColumn.length === 0) return
+
+    if (!this.isSame()) {
+      throw new Error(`${this.sourceForm.tableName} and ${this.targetForm.tableName} fields do not match`)
+    }
+
+    await this.insertData()
+  }
+
+  isSame () {
+    if (this.sourceColumn.length !== this.targetColumn.length) return false
+
+    for (const obj of this.sourceColumn) {
+      const res = this.targetColumn.find(item => item === obj)
+      if (!res) {
+        return false
       }
- */
-export async function forward (f) {
-  form = f
-  unInsertData = []
-  try {
-    pageSize = 100
-    pageNum = 1
-    // 链接源数据库
-    const source = await connect(form.sourceDatabaseType, { ...config.forward[form.sourceDatabaseType], database: form.sourceConnectString })
-    // 链接目标数据库
-    const target = await connect(form.targetDatabaseType, { ...config.forward[form.targetDatabaseType], database: form.targetConnectString })
-
-    await startForward(source, target, form)
-  } catch (e) {
-    throw new Error(e)
-  }
-}
-
-async function startForward (source, target, form) {
-  keys = []
-
-  sourceColumn = await source.getColum(form.sourceTableName)
-
-  targetColumn = await source.getColum(form.targetTableName)
-
-  if (sourceColumn.length === 0 || targetColumn.length === 0) return
-
-  if (!isSame(sourceColumn, targetColumn)) {
-    throw new Error(`${form.sourceTableName} and ${form.targetTableName} fields do not match`)
-  }
-
-  keys = targetColumn
-
-  await insertData(source, target)
-}
-
-function isSame (source, target) {
-  if (source.length !== target.length) return false
-
-  for (const obj of source) {
-    const res = target.find(item => item === obj)
-    if (!res) {
-      return false
     }
+
+    return true
   }
 
-  return true
-}
-
-/**
- * @description插入数据
- * @param { Connection } target
- */
-async function insertData (source, target) {
-  const cacheArr = []
-  try {
-    const res = await source.selectLimit(form.sourceTableName, pageNum, pageSize)
-    res.forEach(item => {
-      const arr = []
-      Object.keys(item).forEach(key => {
-        arr.push(item[key])
+  async insertData () {
+    const cacheArr = []
+    try {
+      const res = await this.sourceConnection.selectLimit(this.sourceForm.tableName, this.pageNum, this.pageSize)
+      res.forEach(item => {
+        const arr = []
+        Object.keys(item).forEach(key => {
+          arr.push(item[key])
+        })
+        cacheArr.push(arr)
       })
-      cacheArr.push(arr)
-    })
 
-    if (res.length !== 0) {
-      pageNum++
+      if (res.length !== 0) {
+        this.pageNum++
 
-      await insertBatchData(target, cacheArr)
+        await this.insertBatchData(cacheArr)
 
-      await insertData(source, target)
-    } else {
-      await source.close()
-      await handleUnInsertData(target)
+        await this.insertData()
+      } else {
+        await this.sourceConnection.close()
+        await this.handleUnInsertData()
+      }
+    } catch (e) {
+      throw new Error(`${this.sourceForm.connectString}-${this.sourceForm.tableName} select data error, reason: ${e}`)
     }
-  } catch (e) {
-    throw new Error(`${form.sourceConnectString}-${form.sourceTableName} select data error, reason: ${e}`)
   }
-}
 
-/**
- * @description批量插入数据
- * @param {Connection} target
- * @param {Array} cacheArr
- */
-async function insertBatchData (target, cacheArr) {
-  try {
-    await target.insertBatch(form.targetTableName, keys, cacheArr)
-    await target.close()
-  } catch (e) {
-    unInsertData.push(cacheArr)
-    throw new Error(e)
+  async insertBatchData (cacheArr) {
+    try {
+      await this.targetConnection.insertBatch(this.targetForm.tableName, this.targetColumn, cacheArr)
+    } catch (e) {
+      this.unInsertData.push(cacheArr)
+      throw new Error(e)
+    }
   }
-}
 
-/**
- * @description 插入数据一次处理 重新插入一次，报错则写入文件
- * @param {Connection} target
- */
-async function handleUnInsertData (target) {
-  if (unInsertData.length === 0) return
-  try {
-    await target.insertBatch(form.targetTableName, keys, unInsertData)
-  } catch (e) {
-    fs.writeFileSync(`${config.savePath}/unInsertData.txt`, JSON.stringify(unInsertData))
-    throw new Error(e)
+  async handleUnInsertData () {
+    if (this.unInsertData.length === 0) return
+    try {
+      await this.targetConnection.insertBatch(this.targetForm.tableName, this.targetColumn, this.unInsertData)
+      await this.targetConnection.close()
+      this.unInsertData = []
+    } catch (e) {
+      fs.writeFileSync(`${config.savePath}/unInsertData.txt`, JSON.stringify(this.unInsertData))
+      throw new Error(e)
+    }
   }
 }

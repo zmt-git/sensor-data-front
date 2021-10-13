@@ -3,9 +3,8 @@
  * @Author: zmt
  * @Date: 2021-09-27 13:55:21
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-12 10:57:47
+ * @LastEditTime: 2021-10-13 09:43:41
  */
-import { config } from '../config'
 import { exportExcel, importExcel } from '../utils'
 
 const oracle = require('oracledb')
@@ -21,7 +20,7 @@ export default class Oracle {
       oracle.getConnection({
         user: this.form.user,
         password: this.form.password,
-        connectString: `${config.host}:${config.port}/${this.form.database}`
+        connectString: `${this.form.host}:${this.form.port || 1521}/${this.form.connectString}`
       }, (err, connection) => {
         if (err) {
           reject(err)
@@ -46,26 +45,30 @@ export default class Oracle {
   }
 
   async getTableName () {
-    const res = this.query('show tables')
+    const res = await this.query('table_name', 'select table_name from user_tables')
 
     const result = []
-
-    console.log(res)
-
+    // todo
     res.forEach(item => {
       result.push(item.Tables_in_test)
     })
 
-    return res
+    return result
   }
 
   getColum (tabledName) {
     return new Promise((resolve, reject) => {
-      this.connection.execute(`SHOW COLUMNS FROM ${tabledName}`, (err, res) => {
+      this.connection.execute(`select * from user_tab_columns where Table_Name=${tabledName}`, (err, res) => {
         if (err) {
           reject(err)
         }
-        resolve(res)
+
+        const arr = []
+        // todo
+        res.forEach(item => {
+          arr.push(item.Field)
+        })
+        resolve(arr)
       })
     })
   }
@@ -144,7 +147,7 @@ export default class Oracle {
     conf.cols = []
     // 获取数据库列名
     try {
-      const field = await this.query('DESCRIBE', `DESCRIBE ${tabledName}`)
+      const field = await this.getColum(tabledName)
       field.result.forEach(item => {
         conf.cols.push({
           caption: item.Field,
