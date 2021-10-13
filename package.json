@@ -1,5 +1,7 @@
 {
   "name": "detector",
+  "author": "ZMT <ZMT819@126.com>",
+  "description": "An electron-vue project",
   "version": "0.1.0",
   "private": true,
   "scripts": {
