@@ -3,22 +3,13 @@
  * @Author: zmt
  * @Date: 2021-09-28 16:01:38
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-12 17:08:59
+ * @LastEditTime: 2021-10-13 13:40:43
  */
 const path = require('path')
 module.exports = {
   pluginOptions: {
     electronBuilder: {
       nodeIntegration: true
-      // builderOptions: {
-      //   win: {
-      //     icon: './public/favicon.ico'// 安装包图标
-      //   },
-      //   mac: {
-      //     icon: './public/app.png'
-      //   },
-      //   productName: 'detector'// 安装包名称
-      // }
     }
   },
   configureWebpack: {

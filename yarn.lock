@@ -1138,7 +1138,7 @@
   dependencies:
     "@types/node" "*"
 
-"@types/json-schema@^7.0.5":
+"@types/json-schema@^7.0.5", "@types/json-schema@^7.0.8":
   version "7.0.9"
   resolved "https://registry.nlark.com/@types/json-schema/download/@types/json-schema-7.0.9.tgz#97edc9037ea0c38585320b28964dde3b39e4660d"
   integrity sha1-l+3JA36gw4WFMgsolk3eOznkZg0=
@@ -1811,7 +1811,7 @@ ajv-keywords@^3.1.0, ajv-keywords@^3.4.1, ajv-keywords@^3.5.2:
   resolved "https://registry.nlark.com/ajv-keywords/download/ajv-keywords-3.5.2.tgz#31f29da5ab6e00d1c2d329acf7b5929614d5014d"
   integrity sha1-MfKdpatuANHC0yms97WSlhTVAU0=
 
-ajv@^6.1.0, ajv@^6.10.0, ajv@^6.10.2, ajv@^6.12.0, ajv@^6.12.3, ajv@^6.12.4:
+ajv@^6.1.0, ajv@^6.10.0, ajv@^6.10.2, ajv@^6.12.0, ajv@^6.12.3, ajv@^6.12.4, ajv@^6.12.5:
   version "6.12.6"
   resolved "https://registry.nlark.com/ajv/download/ajv-6.12.6.tgz?cache=0&sync_timestamp=1631471007166&other_urls=https%3A%2F%2Fregistry.nlark.com%2Fajv%2Fdownload%2Fajv-6.12.6.tgz#baf5a62e802b07d977034586f8c3baf5adf26df4"
   integrity sha1-uvWmLoArB9l3A0WG+MO69a3ybfQ=
@@ -3308,7 +3308,7 @@ copy-descriptor@^0.1.0:
   resolved "https://registry.nlark.com/copy-descriptor/download/copy-descriptor-0.1.1.tgz#676f6eb3c39997c2ee1ac3a924fd6124748f578d"
   integrity sha1-Z29us8OZl8LuGsOpJP1hJHSPV40=
 
-copy-webpack-plugin@^5.1.1:
+copy-webpack-plugin@5.1.2, copy-webpack-plugin@^5.1.1:
   version "5.1.2"
   resolved "https://registry.nlark.com/copy-webpack-plugin/download/copy-webpack-plugin-5.1.2.tgz#8a889e1dcafa6c91c6cd4be1ad158f1d3823bae2"
   integrity sha1-ioieHcr6bJHGzUvhrRWPHTgjuuI=
@@ -7818,7 +7818,7 @@ ora@^3.4.0:
     strip-ansi "^5.2.0"
     wcwidth "^1.0.1"
 
-oracledb@^5.2.0:
+oracledb@5.2.0:
   version "5.2.0"
   resolved "https://registry.nlark.com/oracledb/download/oracledb-5.2.0.tgz#c5774a38508e2ebd4f899500dfc35daa03b00481"
   integrity sha1-xXdKOFCOLr1PiZUA38NdqgOwBIE=
@@ -9295,6 +9295,15 @@ schema-utils@^2.0.0, schema-utils@^2.5.0, schema-utils@^2.6.1, schema-utils@^2.6
     ajv "^6.12.4"
     ajv-keywords "^3.5.2"
 
+schema-utils@^3.0.0:
+  version "3.1.1"
+  resolved "https://registry.nlark.com/schema-utils/download/schema-utils-3.1.1.tgz?cache=0&sync_timestamp=1626694902084&other_urls=https%3A%2F%2Fregistry.nlark.com%2Fschema-utils%2Fdownload%2Fschema-utils-3.1.1.tgz#bc74c4b6b6995c1d88f76a8b77bea7219e0c8281"
+  integrity sha1-vHTEtraZXB2I92qLd76nIZ4MgoE=
+  dependencies:
+    "@types/json-schema" "^7.0.8"
+    ajv "^6.12.5"
+    ajv-keywords "^3.5.2"
+
 scss-tokenizer@^0.2.3:
   version "0.2.3"
   resolved "https://registry.nlark.com/scss-tokenizer/download/scss-tokenizer-0.2.3.tgz#8eb06db9a9723333824d3f5530641149847ce5d1"
@@ -9850,6 +9859,14 @@ strict-uri-encode@^1.0.0:
   version "1.1.0"
   resolved "https://registry.nlark.com/strict-uri-encode/download/strict-uri-encode-1.1.0.tgz#279b225df1d582b1f54e65addd4352e18faa0713"
   integrity sha1-J5siXfHVgrH1TmWt3UNS4Y+qBxM=
+
+string-replace-loader@^3.0.3:
+  version "3.0.3"
+  resolved "https://registry.nlark.com/string-replace-loader/download/string-replace-loader-3.0.3.tgz#bdbb4c9879ebb1d88185acd34afc4fb62334b433"
+  integrity sha1-vbtMmHnrsdiBhazTSvxPtiM0tDM=
+  dependencies:
+    loader-utils "^2.0.0"
+    schema-utils "^3.0.0"
 
 string-width@^1.0.1:
   version "1.0.2"
