@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-10-08 10:19:05
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-12 11:18:52
+ * @LastEditTime: 2021-10-13 14:53:08
  */
 import { ipcMain } from 'electron'
 import { connect, query, getTableName, close, importExcel, exportExcel } from '../database'
@@ -60,10 +60,12 @@ export function ipc (mainWindow) {
   ipcMain.on('importExcel', async (event, type, tabledName) => {
     try {
       const res = await importExcel(type, tabledName)
-      mainWindow.webContents.send('importExcel', { code: 1, msg: `${type}-excel导入成功`, result: res })
+      const result = { code: 1, msg: `${type}-excel导入成功`, result: res }
+      if (!res) result.code = 2
+      mainWindow.webContents.send('importExcel', result)
     } catch (err) {
       console.warn(err)
-      mainWindow.webContents.send('importExcel', { code: 1, msg: `${type}-excel导入失败`, result: err })
+      mainWindow.webContents.send('importExcel', { code: 0, msg: `${type}-excel导入失败`, result: err })
     }
   })
 

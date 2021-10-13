@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-29 09:02:28
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-12 15:15:53
+ * @LastEditTime: 2021-10-13 15:04:00
 -->
 <template>
   <div class="d-sql" @mouseup="onCancelMove">
@@ -56,11 +56,9 @@ export default {
 
     eventBus.$on('query', this.onQuery)
     eventBus.$on('getTableName', this.getTableName)
-    eventBus.$on('importExcel', this.onImportExcel)
 
     this.$once('hook:beforeDestroy', () => {
       eventBus.$off('query', this.onQuery)
-      eventBus.$off('importExcel', this.onImportExcel)
       eventBus.$off('getTableName', this.getTableName)
     })
   },
@@ -159,11 +157,11 @@ export default {
   },
 
   watch: {
-    '$route' (to, from) {
+    async '$route' (to, from) {
+      await this.$store.dispatch('actionsCurrentTableName', '')
       this.onShowTables()
       this.statement = ''
       this.tableData = []
-      this.$store.dispatch('actionsCurrentTableName', '')
     }
   }
 }

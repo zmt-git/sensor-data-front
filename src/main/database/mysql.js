@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-27 13:33:58
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-13 10:04:27
+ * @LastEditTime: 2021-10-13 14:50:37
  */
 import { exportExcel, importExcel } from '../utils'
 
@@ -188,8 +188,9 @@ export default class MySQL {
    */
   async importExcel (tabledName) {
     try {
-      const { fields, data } = importExcel()
-
+      const result = importExcel()
+      if (!result) return
+      const { fields, data } = result
       const res = this.insertBatch(tabledName, fields, data)
 
       return res

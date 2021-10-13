@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-10-12 08:52:20
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-12 16:37:42
+ * @LastEditTime: 2021-10-13 14:49:38
  */
 import { config } from '../config'
 import { openFileSync } from './file'
@@ -31,8 +31,7 @@ export function exportExcel (conf) {
 
     return `/${config.savePath}/${conf.name}`
   } catch (err) {
-    console.error(err)
-    return Promise.reject(err)
+    throw new Error(err)
   }
 }
 
@@ -44,7 +43,7 @@ export function importExcel () {
   try {
     const filePath = openFileSync()
     if (!filePath) {
-      return Promise.reject(new Error('file is not exist'))
+      return
     }
 
     if (filePath && path.extname(filePath[0]) !== '.xlsx') {
@@ -61,7 +60,7 @@ export function importExcel () {
 
     return { data: workSheetsFromBuffer[0].data, fields: fields }
   } catch (err) {
-    return Promise.reject(err)
+    throw new Error(err)
   }
 }
 

@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-27 13:55:21
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-13 09:43:41
+ * @LastEditTime: 2021-10-13 14:50:43
  */
 import { exportExcel, importExcel } from '../utils'
 
@@ -181,7 +181,9 @@ export default class Oracle {
    */
   async importExcel (tabledName) {
     try {
-      const { fields, data } = importExcel()
+      const result = importExcel()
+      if (!result) return
+      const { fields, data } = result
 
       const res = this.insertBatch(tabledName, fields, data)
 

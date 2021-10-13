@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-10-08 10:40:55
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-12 09:59:21
+ * @LastEditTime: 2021-10-13 14:58:18
  */
 import { ipcMain } from 'electron'
 import { openFileSync } from '../utils/file'
@@ -15,7 +15,6 @@ import { openFileSync } from '../utils/file'
 export function ipc (mainWindow) {
   ipcMain.on('onDialog', (event, type, properties) => {
     const result = openFileSync(properties)
-
-    mainWindow.webContents.send('onDialog', type, result)
+    mainWindow.webContents.send('onDialog', type, result || [''])
   })
 }

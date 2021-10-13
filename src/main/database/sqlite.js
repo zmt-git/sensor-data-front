@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-27 14:13:59
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-13 09:44:11
+ * @LastEditTime: 2021-10-13 15:00:13
  */
 import { exportExcel, importExcel } from '../utils'
 const sqlite3 = require('sqlite3').verbose()
@@ -192,7 +192,11 @@ export default class SQLite {
    */
   async importExcel (tabledName) {
     try {
-      const { fields, data } = importExcel()
+      const result = importExcel()
+
+      if (!result) return
+
+      const { fields, data } = result
 
       const res = this.insertBatch(tabledName, fields, data)
 
