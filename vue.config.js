@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-28 16:01:38
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-13 16:58:53
+ * @LastEditTime: 2021-10-13 17:27:22
  */
 const CopyPlugin = require('copy-webpack-plugin')
 const path = require('path')
@@ -23,11 +23,18 @@ module.exports = {
     },
 
     plugins: [
+      // new CopyPlugin([
+      //   {
+      //     // Copy the binary Oracle DB driver to dist.
+      //     from: path.resolve(__dirname, 'node_modules/oracledb/build/Release'),
+      //     to: 'oracledb'
+      //   },
+      // ])
       new CopyPlugin([
         {
           // Copy the binary Oracle DB driver to dist.
-          from: path.resolve(__dirname, 'node_modules/oracledb/build/Release'),
-          to: 'oracledb'
+          from: path.resolve(__dirname, 'node_modules/oracledb/build'),
+          to: 'node_modules/oracledb/build'
         }
       ])
     ]
