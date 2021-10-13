@@ -7,7 +7,7 @@ import { registerIpcRenderer } from '@/ipc/index'
 import 'element-ui/lib/theme-chalk/index.css'
 import 'animate.css'
 import '@/styles/index.scss'
-
+import '@/assets/iconfont/iconfont'
 registerIpcRenderer()
 
 Vue.config.productionTip = false

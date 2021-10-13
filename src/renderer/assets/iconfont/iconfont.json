@@ -1,0 +1,191 @@
+{
+  "id": "2835106",
+  "name": "detector",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "18260244",
+      "name": "日志解析服务icon",
+      "font_class": "rizhijiexifuwuicon",
+      "unicode": "e67c",
+      "unicode_decimal": 59004
+    },
+    {
+      "icon_id": "20608547",
+      "name": "数据库同步",
+      "font_class": "shujukutongbu",
+      "unicode": "e6f5",
+      "unicode_decimal": 59125
+    },
+    {
+      "icon_id": "17351061",
+      "name": "断开链接",
+      "font_class": "duankailianjie",
+      "unicode": "e606",
+      "unicode_decimal": 58886
+    },
+    {
+      "icon_id": "4795080",
+      "name": "日志解析",
+      "font_class": "rizhijiexi",
+      "unicode": "e629",
+      "unicode_decimal": 58921
+    },
+    {
+      "icon_id": "18393108",
+      "name": "手动同步数据库表",
+      "font_class": "shoudongtongbushujukubiao",
+      "unicode": "e664",
+      "unicode_decimal": 58980
+    },
+    {
+      "icon_id": "2682152",
+      "name": "表格",
+      "font_class": "biaoge",
+      "unicode": "e6fc",
+      "unicode_decimal": 59132
+    },
+    {
+      "icon_id": "1727569",
+      "name": "332同步",
+      "font_class": "tongbu",
+      "unicode": "e8fc",
+      "unicode_decimal": 59644
+    },
+    {
+      "icon_id": "18386857",
+      "name": "执行",
+      "font_class": "zhihang",
+      "unicode": "e6d5",
+      "unicode_decimal": 59093
+    },
+    {
+      "icon_id": "8802623",
+      "name": "数据库1",
+      "font_class": "shujuku1",
+      "unicode": "e644",
+      "unicode_decimal": 58948
+    },
+    {
+      "icon_id": "19013302",
+      "name": "工具-tool",
+      "font_class": "gongju-tool",
+      "unicode": "e64f",
+      "unicode_decimal": 58959
+    },
+    {
+      "icon_id": "9132790",
+      "name": "还原",
+      "font_class": "huanyuan",
+      "unicode": "e65e",
+      "unicode_decimal": 58974
+    },
+    {
+      "icon_id": "24654909",
+      "name": "关闭",
+      "font_class": "guanbi-copy",
+      "unicode": "ea24",
+      "unicode_decimal": 59940
+    },
+    {
+      "icon_id": "1299794",
+      "name": "Maximize-1",
+      "font_class": "zuidahua",
+      "unicode": "e65d",
+      "unicode_decimal": 58973
+    },
+    {
+      "icon_id": "3368812",
+      "name": "最小化",
+      "font_class": "zuixiaohua",
+      "unicode": "e669",
+      "unicode_decimal": 58985
+    },
+    {
+      "icon_id": "4954921",
+      "name": "关闭",
+      "font_class": "guanbi",
+      "unicode": "e653",
+      "unicode_decimal": 58963
+    },
+    {
+      "icon_id": "1183019",
+      "name": "退出",
+      "font_class": "tuichu",
+      "unicode": "e655",
+      "unicode_decimal": 58965
+    },
+    {
+      "icon_id": "2815741",
+      "name": "右箭头",
+      "font_class": "youjiantou",
+      "unicode": "e602",
+      "unicode_decimal": 58882
+    },
+    {
+      "icon_id": "24713772",
+      "name": "导入excel",
+      "font_class": "excel_out",
+      "unicode": "ea25",
+      "unicode_decimal": 59941
+    },
+    {
+      "icon_id": "3977828",
+      "name": "数据库",
+      "font_class": "shujuku",
+      "unicode": "e615",
+      "unicode_decimal": 58901
+    },
+    {
+      "icon_id": "12319301",
+      "name": "导入excel",
+      "font_class": "excel_in",
+      "unicode": "e600",
+      "unicode_decimal": 58880
+    },
+    {
+      "icon_id": "3176822",
+      "name": "Oracle",
+      "font_class": "Oracle",
+      "unicode": "ea23",
+      "unicode_decimal": 59939
+    },
+    {
+      "icon_id": "19202425",
+      "name": "sqlite",
+      "font_class": "sqlite",
+      "unicode": "e61d",
+      "unicode_decimal": 58909
+    },
+    {
+      "icon_id": "19272003",
+      "name": "mysql",
+      "font_class": "mysql",
+      "unicode": "e715",
+      "unicode_decimal": 59157
+    },
+    {
+      "icon_id": "5978790",
+      "name": "data",
+      "font_class": "shuju",
+      "unicode": "e61b",
+      "unicode_decimal": 58907
+    },
+    {
+      "icon_id": "7417920",
+      "name": "工具",
+      "font_class": "gongju",
+      "unicode": "e60c",
+      "unicode_decimal": 58892
+    },
+    {
+      "icon_id": "11174216",
+      "name": "检测仪器",
+      "font_class": "jianceyiqi-",
+      "unicode": "e6f7",
+      "unicode_decimal": 59127
+    }
+  ]
+}
