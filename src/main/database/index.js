@@ -3,10 +3,10 @@
  * @Author: zmt
  * @Date: 2021-09-28 09:56:26
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-13 15:55:16
+ * @LastEditTime: 2021-10-13 16:19:15
  */
 import MySQL from './mysql'
-// import Oracle from './oracle'
+import Oracle from './oracle'
 import SQLite from './sqlite'
 
 const sql = {
@@ -15,7 +15,7 @@ const sql = {
   SQLite: null
 }
 
-const SQL = { MySQL, /* Oracle */ SQLite }
+const SQL = { MySQL, Oracle, SQLite }
 
 /**
  * @description链接数据库
