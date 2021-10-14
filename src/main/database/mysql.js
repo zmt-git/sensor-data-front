@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-27 13:33:58
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-13 14:50:37
+ * @LastEditTime: 2021-10-14 11:24:21
  */
 import { exportExcel, importExcel } from '../utils'
 
@@ -40,24 +40,24 @@ export default class MySQL {
    * @param {*} sign
    * @param {String} querySql
    */
-  query (sign, querySql) {
+  query (querySql) {
     return new Promise((resolve, reject) => {
       this.connection.query(querySql, (err, result) => {
         if (err) {
           reject(err)
           return
         }
-        resolve({ result, sign })
+        resolve(result)
       })
     })
   }
 
   async getTableName () {
-    const res = await this.query('show', 'show tables')
+    const res = await this.query('show tables')
 
     const result = []
 
-    res.result.forEach(item => {
+    res.forEach(item => {
       result.push(item[`Tables_in_${this.form.connectString}`])
     })
 
@@ -154,8 +154,8 @@ export default class MySQL {
     conf.cols = []
     // 获取数据库列名
     try {
-      const field = await this.query('DESCRIBE', `DESCRIBE ${tabledName}`)
-      field.result.forEach(item => {
+      const field = await this.query(`DESCRIBE ${tabledName}`)
+      field.forEach(item => {
         conf.cols.push({
           caption: item.Field,
           type: 'string'

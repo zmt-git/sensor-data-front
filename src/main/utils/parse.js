@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-10-08 15:31:57
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-09 13:38:40
+ * @LastEditTime: 2021-10-14 15:54:37
  */
 export function getDate (string) {
   return string.slice(0, 19)
@@ -39,10 +39,10 @@ export function isProtocolString (string) {
  * @description判断是否为json
  * @param {String} string
  */
-const jsonReg = /\{.*?\}/g
+// const jsonReg = /\{.*?\}/g
 export function isProtocolJson (string) {
-  const body = string.split('：').pop()
-  return string.includes('core.DataDecoder') && jsonReg.test(body)
+  // const body = string.split('：').pop()
+  return string.includes('core.DataDecoder')
 }
 
 // {

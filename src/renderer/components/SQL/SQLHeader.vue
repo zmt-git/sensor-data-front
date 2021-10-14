@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-29 08:59:24
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-12 15:23:05
+ * @LastEditTime: 2021-10-14 14:09:06
 -->
 <template>
   <div class="d-sql-header">
@@ -26,7 +26,7 @@
 </template>
 
 <script>
-import { emitExportExcel, emitImportExcel } from '@/ipc/database'
+import { ipcSend } from '@/ipc'
 import { mapGetters } from 'vuex'
 import BaseSvgIcon from '../BaseSvgIcon.vue'
 export default {
@@ -66,14 +66,24 @@ export default {
       this.$emit('refresh')
     },
     // 导入excel
-    onClickImport () {
+    async onClickImport () {
       if (this.disabled) return
-      emitImportExcel(this.currentDataBase, this.currentTableName)
+      try {
+        await ipcSend({ sign: 'database/importExcel', params: { type: this.currentDataBase, tableName: this.currentTableName } })
+        this.$emit('importExcel')
+      } catch (e) {
+        console.error(e)
+      }
     },
     // 导出excel
-    onClickExport () {
+    async onClickExport () {
       if (this.disabled) return
-      emitExportExcel(this.currentDataBase, this.currentTableName)
+      try {
+        const res = await ipcSend({ sign: 'database/exportExcel', params: { type: this.currentDataBase, tableName: this.currentTableName } })
+        this.$message({ type: 'success', message: `导出成功,位置:${res}` })
+      } catch (e) {
+        console.error(e)
+      }
     },
     // 断开链接
     onClose () {
@@ -83,9 +93,12 @@ export default {
         type: 'warning',
         showClose: true
       }).then(async () => {
+        await ipcSend({ sign: 'database/close', params: { type: this.currentDataBase } })
         await this.$store.dispatch('actionSqlIsLogin', { type: this.currentDataBase, value: false })
         this.$router.push({ path: '/', query: { type: this.currentDataBase } })
-      }).catch(() => {})
+      }).catch((e) => {
+        console.error(e)
+      })
     }
   }
 }

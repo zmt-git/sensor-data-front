@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-27 13:55:21
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-13 14:50:43
+ * @LastEditTime: 2021-10-14 11:27:25
  */
 import { exportExcel, importExcel } from '../utils'
 
@@ -32,20 +32,20 @@ export default class Oracle {
     })
   }
 
-  query (sign, querySql) {
+  query (querySql) {
     return new Promise((resolve, reject) => {
       this.connection.execute(querySql, (err, result) => {
         if (err) {
           reject(err)
           return
         }
-        resolve({ sign, result })
+        resolve(result)
       })
     })
   }
 
   async getTableName () {
-    const res = await this.query('table_name', 'select table_name from user_tables')
+    const res = await this.query('select table_name from user_tables')
 
     const result = []
     // todo

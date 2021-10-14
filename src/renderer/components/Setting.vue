@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-10-12 15:28:36
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-13 10:31:24
+ * @LastEditTime: 2021-10-14 10:37:59
 -->
 <template>
   <div class="d-setting" @click.self='close'>
@@ -24,8 +24,6 @@
 
 <script>
 import { config } from '~/main/config'
-import eventBus from '@/util/eventBus'
-import { savePathIpc } from '@/ipc/file'
 export default {
   name: 'd-setting',
 
@@ -42,21 +40,13 @@ export default {
     }
   },
 
-  created () {
-    eventBus.$on('savePath', this.setSavePath)
-
-    this.$once('hook:beforeDestroy', () => {
-      eventBus.$off('savePath', this.setSavePath)
-    })
-  },
-
   methods: {
     close () {
       this.$emit('update:visible', false)
     },
 
     onChangeSavePath () {
-      savePathIpc({ properties: ['openDirectory'] })
+
     },
 
     setSavePath (res) {

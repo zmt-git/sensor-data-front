@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-26 16:28:18
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-13 09:46:17
+ * @LastEditTime: 2021-10-14 13:43:03
 -->
 <template>
   <div class="login-data-base" v-loading='loading'>
@@ -65,11 +65,9 @@
 
 <script>
 import { navList } from '@/common/aside'
-import { emitConnect } from '@/ipc/database'
 import { mapGetters } from 'vuex'
 import BaseSvgIcon from '@/components/BaseSvgIcon.vue'
-import { onDialog } from '@/ipc/dialog'
-import eventBus from '@/util/eventBus'
+import { ipcSend } from '@/ipc'
 
 export default {
   name: 'login-data-base',
@@ -96,16 +94,6 @@ export default {
     }
   },
 
-  created () {
-    eventBus.$on('connect', this.onConnect)
-    eventBus.$on('onDialog', this.setPath)
-
-    this.$once('hook:beforeDestroy', () => {
-      eventBus.$off('connect', this.onConnect)
-      eventBus.$off('onDialog', this.setPath)
-    })
-  },
-
   data () {
     return {
       loading: false,
@@ -125,34 +113,34 @@ export default {
 
   methods: {
     // 链接数据库
-    submitForm () {
+    async submitForm () {
       this.loading = true
-      emitConnect(this.currentDataBase, this.ruleForm)
-    },
-
-    async onConnect (res) {
-      this.loading = false
-      if (res.code === 1) {
+      try {
+        await ipcSend({ sign: 'database/connect', params: { type: this.currentDataBase, form: this.ruleForm } })
         await this.$store.dispatch('actionSqlIsLogin', { type: this.currentDataBase, value: true })
         await this.$router.push({ path: '/querySQL', query: { type: this.currentDataBase } })
+      } catch (e) {
+        console.error(e)
       }
+      this.loading = false
     },
 
-    openFileDB () {
-      if (this.isSQLite) {
-        const obj = {
-          properties: ['openFile'],
-          filters: [
-            { name: 'Txt', extensions: ['db'] }
-          ]
+    async openFileDB () {
+      try {
+        if (this.isSQLite) {
+          const obj = {
+            properties: ['openFile'],
+            filters: [
+              { name: '*', extensions: ['db'] }
+            ]
+          }
+          const res = await ipcSend({ sign: 'dialog/openFile', params: obj })
+          this.ruleForm.connectString = res.shift()
+          this.$refs.connectString.blur()
         }
-        onDialog('sqlite', obj)
+      } catch (e) {
+        console.error(e)
       }
-    },
-
-    setPath (type, value) {
-      this.ruleForm.connectString = value.shift()
-      this.$refs.connectString.blur()
     }
   }
 }

@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-28 09:56:26
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-13 16:19:15
+ * @LastEditTime: 2021-10-14 13:55:17
  */
 import MySQL from './mysql'
 import Oracle from './oracle'
@@ -23,12 +23,14 @@ const SQL = { MySQL, Oracle, SQLite }
  * @param {Object} form 链接数据库config
  * @return {Connection}
  */
-export async function connect (type, form) {
+export async function connect (params, isReturn = false) {
   try {
+    const { type, form } = params
     sql[type] = new SQL[type](form)
     await sql[type].connect()
-    return sql[type]
+    if (isReturn) return sql[type]
   } catch (e) {
+    console.error(e)
     throw new Error(e)
   }
 }
@@ -39,18 +41,30 @@ export async function connect (type, form) {
  * @param {*} sign 标识码
  * @param {String} statement 语句
  */
-export async function query (type, sign, querySql) {
+export async function query (params) {
   try {
-    const res = await sql[type].query(sign, querySql)
+    const { type, statement } = params
+    const res = await sql[type].query(statement)
     return res
   } catch (e) {
     throw new Error(e)
   }
 }
 
-export async function getTableName (type) {
+export async function getTableName (params) {
   try {
+    const { type } = params
     const res = await sql[type].getTableName()
+    return res
+  } catch (e) {
+    throw new Error(e)
+  }
+}
+
+export async function getTableData (params) {
+  try {
+    const { type, tableName, pageNum, pageSize } = params
+    const res = await sql[type].selectLimit(tableName, pageNum, pageSize)
     return res
   } catch (e) {
     throw new Error(e)
@@ -61,8 +75,9 @@ export async function getTableName (type) {
  * @description关闭数据库
  * @param {String} type 数据库类型
  */
-export async function close (type) {
+export async function close (params) {
   try {
+    const { type } = params
     const res = await sql[type].close()
     return res
   } catch (e) {
@@ -73,11 +88,12 @@ export async function close (type) {
 /**
  * @description导入数据excel
  * @param { String } type 数据库类型
- * @param { String } tabledName 表名称
+ * @param { String } tableName 表名称
  */
-export async function importExcel (type, tabledName) {
+export async function importExcel (params) {
   try {
-    const res = await sql[type].importExcel(tabledName)
+    const { type, tableName } = params
+    const res = await sql[type].importExcel(tableName)
     return res
   } catch (e) {
     throw new Error(e)
@@ -87,11 +103,12 @@ export async function importExcel (type, tabledName) {
 /**
  * @description导出数据excel
  * @param { String } type 数据库类型
- * @param { String } tabledName 表名称
+ * @param { String } tableName 表名称
  */
-export async function exportExcel (type, tabledName) {
+export async function exportExcel (params) {
   try {
-    const res = await sql[type].exportExcel(tabledName)
+    const { type, tableName } = params
+    const res = await sql[type].exportExcel(tableName)
     return res
   } catch (e) {
     throw new Error(e)

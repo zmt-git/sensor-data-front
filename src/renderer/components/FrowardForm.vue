@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-10-13 09:11:56
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-13 09:23:49
+ * @LastEditTime: 2021-10-14 11:20:44
 -->
 <template>
   <el-form :model='form'>
@@ -55,7 +55,7 @@
         placeholder='密码'></el-input>
     </el-form-item>
     <el-form-item>
-      <div @click='openFileDB(1)'>
+      <div @click='openFileDB'>
         <el-input
           ref='1'
           class="el-input__inner-radius"
@@ -75,9 +75,8 @@
 </template>
 
 <script>
-import eventBus from '@/util/eventBus'
 import BaseSvgIcon from '@/components/BaseSvgIcon.vue'
-import { onDialog } from '@/ipc/dialog'
+import { ipcSend } from '@/ipc'
 import { navList } from '@/common/aside'
 export default {
   name: 'd-forward-form',
@@ -109,30 +108,22 @@ export default {
     }
   },
 
-  created () {
-    eventBus.$on('onDialog', this.setValue)
-
-    this.$once('hook:beforeDestroy', () => {
-      eventBus.$off('onDialog', this.setValue)
-    })
-  },
-
   methods: {
-    setValue (type, res) {
-      const val = res.pop()
-      this.form.connectString = val
-      this.$refs[type].blur()
-    },
-
-    openFileDB (type) {
-      if (this.form.databaseType === 'SQLite') {
-        const obj = {
-          properties: ['openFile'],
-          filters: [
-            { name: 'db', extensions: ['db'] }
-          ]
+    async openFileDB () {
+      try {
+        if (this.form.databaseType === 'SQLite') {
+          const obj = {
+            properties: ['openFile'],
+            filters: [
+              { name: '*', extensions: ['db'] }
+            ]
+          }
+          const res = await ipcSend({ sign: 'dialog/openFile', params: obj })
+          this.form.connectString = res.shift()
+          this.$refs.connectString.blur()
         }
-        onDialog(type, obj)
+      } catch (e) {
+        console.error(e)
       }
     }
   }

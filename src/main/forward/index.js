@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-10-09 15:21:49
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-13 10:16:55
+ * @LastEditTime: 2021-10-14 15:20:55
  */
 /**
  * 1.链接数据库
@@ -30,9 +30,9 @@ export default class ForwardsDatabase {
   async connect () {
     try {
       // 链接源数据库
-      this.sourceConnection = await connect(this.sourceForm.databaseType, this.sourceForm)
+      this.sourceConnection = await connect({ type: this.sourceForm.databaseType, form: this.sourceForm }, true)
       // 链接目标数据库
-      this.targetConnection = await connect(this.targetForm.databaseType, this.targetForm)
+      this.targetConnection = await connect({ type: this.targetForm.databaseType, form: this.targetForm }, true)
 
       await this.startForward()
     } catch (e) {
@@ -110,7 +110,7 @@ export default class ForwardsDatabase {
       await this.targetConnection.close()
       this.unInsertData = []
     } catch (e) {
-      fs.writeFileSync(`${config.savePath}/unInsertData.txt`, JSON.stringify(this.unInsertData))
+      fs.writeFileSync(`${config.savePath}/unInsertData-forward.txt`, JSON.stringify(this.unInsertData))
       throw new Error(e)
     }
   }

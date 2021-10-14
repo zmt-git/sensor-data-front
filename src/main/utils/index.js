@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-10-12 08:52:20
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-13 14:49:38
+ * @LastEditTime: 2021-10-14 14:00:14
  */
 import { config } from '../config'
 import { openFileSync } from './file'
@@ -29,7 +29,7 @@ export function exportExcel (conf) {
 
     fs.writeFileSync(`${config.savePath}/${conf.name}.xlsx`, result, 'binary')
 
-    return `/${config.savePath}/${conf.name}`
+    return `${config.savePath}/${conf.name}`
   } catch (err) {
     throw new Error(err)
   }

@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-26 11:56:42
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-12 15:46:21
+ * @LastEditTime: 2021-10-14 12:01:44
 -->
 <template>
   <div class="d-layout">
@@ -32,10 +32,9 @@ import { navList, iconList } from '@/common/aside'
 import { mapGetters } from 'vuex'
 import AsideNavItem from '@/components/AsideNavItem.vue'
 import DHeader from '@/components/Header.vue'
-import { ipcRenderer } from 'electron'
-import eventBus from '@/util/eventBus'
 import DSetting from '../components/Setting.vue'
-
+import { ipcSend } from '@/ipc'
+import { ipcRenderer } from 'electron'
 export default {
   name: 'd-layout',
 
@@ -58,17 +57,18 @@ export default {
     }
   },
 
-  mounted () {
-    eventBus.$on('created', () => {
-      ipcRenderer.send('changeSize', 1)
-    })
-
-    this.$nextTick(() => {
-      ipcRenderer.send('changeSize', 1)
-    })
+  created () {
+    ipcRenderer.once('created', this.changeSize)
   },
 
   methods: {
+    async changeSize () {
+      try {
+        await ipcSend({ sign: 'window/changeSize', params: { type: 1 } })
+      } catch (e) {
+        console.error(e)
+      }
+    },
     // 侧边栏切换
     async setValue (e) {
       if (this.currentDataBase === e.id) return

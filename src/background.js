@@ -43,6 +43,8 @@ async function createWindow () {
   }
 
   registerIpcMain(mainWindow)
+
+  mainWindow.webContents.send('created')
 }
 
 // Quit when all windows are closed.

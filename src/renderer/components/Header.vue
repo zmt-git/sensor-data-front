@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-27 08:54:37
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-12 15:37:32
+ * @LastEditTime: 2021-10-14 11:42:36
 -->
 <template>
   <header class="d-header" :style="{ backgroundColor: bg }">
@@ -20,13 +20,13 @@
       </div>
     </div>
     <div class="d-header-item d-header-right">
-      <span v-if="!isLogin" class="d-header-item-icon" title="最小化" @click='headerControl("window-min")'>
+      <span v-if="!isLogin" class="d-header-item-icon" title="最小化" @click='headerControl("min")'>
         <base-svg-icon iconName='icon-zuixiaohua' font-size="14px"></base-svg-icon>
       </span>
-      <span v-if="!isLogin" class="d-header-item-icon" :title="maxTitle" @click='headerControl("window-max")'>
+      <span v-if="!isLogin" class="d-header-item-icon" :title="maxTitle" @click='headerControl("max")'>
         <base-svg-icon :iconName='isMaxIcon' font-size="14px"></base-svg-icon>
       </span>
-      <span class="d-header-item-icon" title='关闭' @click='headerControl("window-close")'>
+      <span class="d-header-item-icon" title='关闭' @click='headerControl("close")'>
         <base-svg-icon v-if="!isLogin" iconName='icon-guanbi' font-size="14px"></base-svg-icon>
         <base-svg-icon v-else iconName='icon-guanbi-copy' font-size="14px"></base-svg-icon>
       </span>
@@ -36,8 +36,7 @@
 
 <script>
 import BaseSvgIcon from './BaseSvgIcon.vue'
-import eventBus from '@/util/eventBus'
-import { headerIpc } from '@/ipc/header'
+import { ipcSend } from '@/ipc'
 import { removeToken } from '@/util/auth/token'
 export default {
   name: 'd-header',
@@ -76,15 +75,6 @@ export default {
     }
   },
 
-  created () {
-    eventBus.$on('isMax', (val) => {
-      this.isMax = val
-    })
-    this.$once('hook:beforeDestroy', () => {
-      eventBus.$off('isMax')
-    })
-  },
-
   mounted () {
     document.addEventListener('click', this.onHiddenInfo)
 
@@ -95,8 +85,13 @@ export default {
 
   methods: {
     // 头部操作
-    headerControl (type) {
-      headerIpc(type)
+    async headerControl (type) {
+      try {
+        const res = await ipcSend({ sign: `window/${type}` })
+        if (res !== undefined) this.isMax = res
+      } catch (e) {
+        console.error(e)
+      }
     },
     // 隐藏程序
     onHiddenInfo () {

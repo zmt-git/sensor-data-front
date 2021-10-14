@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-10-08 09:17:40
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-13 10:09:10
+ * @LastEditTime: 2021-10-14 14:25:20
 -->
 <template>
   <div class="d-update-data">
@@ -25,9 +25,7 @@
 
 <script>
 import { navList } from '@/common/aside'
-import { message } from '@/util'
-import eventBus from '@/util/eventBus'
-import { onForward } from '@/ipc/updateData'
+import { ipcSend } from '@/ipc'
 import FrowardForm from '../components/FrowardForm.vue'
 export default {
   name: 'update-data',
@@ -66,24 +64,16 @@ export default {
     }
   },
 
-  created () {
-    eventBus.$on('forward', this.forward)
-
-    this.$once('hook:beforeDestroy', () => {
-      eventBus.$off('forward', this.forward)
-    })
-  },
-
   methods: {
-    submitForm () {
-      console.log(this.source, this.target)
-      onForward(this.source, this.target)
-    },
-
-    forward (res) {
+    async submitForm () {
+      this.loading = true
+      try {
+        await ipcSend({ sign: 'updateData/forward', params: { source: this.source, target: this.target } })
+        this.$message({ type: 'success', message: '转发成功' })
+      } catch (e) {
+        console.error(e)
+      }
       this.loading = false
-      message(res)
-      console.log(res)
     }
   }
 }

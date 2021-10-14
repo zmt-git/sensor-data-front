@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-26 11:59:49
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-08 14:58:21
+ * @LastEditTime: 2021-10-14 11:39:00
 -->
 
 <template>
@@ -43,7 +43,7 @@ import { loginRequest } from '@/api/login'
 import { setToken } from '@/util/auth/token'
 import BaseSvgIcon from '../components/BaseSvgIcon.vue'
 import DHeader from '@/components/Header.vue'
-import { ipcRenderer } from 'electron'
+import { ipcSend } from '@/ipc'
 
 export default {
   name: 'd-login',
@@ -67,8 +67,12 @@ export default {
     }
   },
 
-  mounted () {
-    ipcRenderer.send('changeSize', 0)
+  async mounted () {
+    try {
+      await ipcSend({ sign: 'window/changeSize', params: { type: 0 } })
+    } catch (e) {
+      console.error(e)
+    }
   },
 
   methods: {

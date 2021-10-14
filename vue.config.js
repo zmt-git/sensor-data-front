@@ -23,13 +23,6 @@ module.exports = {
     },
 
     plugins: [
-      // new CopyPlugin([
-      //   {
-      //     // Copy the binary Oracle DB driver to dist.
-      //     from: path.resolve(__dirname, 'node_modules/oracledb/build/Release'),
-      //     to: 'oracledb'
-      //   },
-      // ])
       new CopyPlugin([
         {
           // Copy the binary Oracle DB driver to dist.

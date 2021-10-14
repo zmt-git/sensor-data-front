@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-10-08 13:47:44
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-12 14:25:35
+ * @LastEditTime: 2021-10-14 16:11:07
  */
 // 选取目录 -> 获取目录.log文件 -> 读取文件
 // 读取文件 -> 按行读取 -> 解析
@@ -20,126 +20,177 @@ const path = require('path')
 const readline = require('readline')
 
 // 判断是否为文件
-const isFile = fileName => {
-  return fs.lstatSync(fileName).isFile()
-}
+// 1.获取目录文件 2.链接数据库 3.读取文件 4.入库/导出为txt文件，
+// todo 导出为excel文件
 
-export async function parse (form) {
-  const pathArr = getFilePath(form.importDirectory)
-
-  const p = []
-
-  pathArr.forEach(filePath => {
-    p.push(readFile(filePath, form))
-  })
-
-  return Promise.all(p)
-}
-
-/**
- * @description 获取目录.log文件
- * @param {Path} directory
- */
-function getFilePath (directory) {
-  try {
-    const arr = fs.readdirSync(directory).map(fileName => {
-      return path.join(directory, fileName)
-    })
-      .filter(isFile)
-
-    return arr.filter(item => path.extname(item) === '.log')
-  } catch (e) {
-    console.log(e)
+export default class ParseLog {
+  constructor (form) {
+    this.form = form
+    this.sql = null
+    this.filePaths = []
+    this.currentFile = ''
   }
-}
 
-/**
- * @description读取文件
- * @param {Path String} filePath
- */
-function readFile (filePath, form) {
-  return new Promise((resolve, reject) => {
-    const stream = fs.createReadStream(filePath)
+  isFile (fileName) {
+    return fs.lstatSync(fileName).isFile()
+  }
+
+  async parse () {
+    try {
+      if (this.form.type === 0) {
+        await this.connect()
+      }
+
+      this.filePaths = this.getFilePath()
+
+      this.readFile()
+    } catch (e) {
+      throw new Error(e)
+    }
+  }
+
+  async connect () {
+    try {
+      this.sql = await connect({
+        type: this.form.databaseType,
+        form: { user: 'root', password: '123456789', connectString: this.form.connectString }
+      }, true)
+    } catch (e) {
+      console.error(e)
+      throw new Error(e)
+    }
+  }
+
+  getFilePath () {
+    try {
+      const arr = fs.readdirSync(this.form.importDirectory).map(fileName => {
+        return path.join(this.form.importDirectory, fileName)
+      })
+        .filter(this.isFile)
+
+      return arr.filter(item => path.extname(item) === '.log')
+    } catch (e) {
+      console.log(e)
+      throw new Error(e)
+    }
+  }
+
+  readFile (cacheStringArr = []) {
+    this.currentFile = this.filePaths.shift()
+    if (!this.currentFile) {
+      return
+    }
+
+    const stream = fs.createReadStream(this.currentFile)
 
     const rl = readline.createInterface({
       input: stream
     })
 
-    rl.on('line', (data) => {
-      parseProtocol(data, form)
+    rl.on('line', async (data) => {
+      try {
+        const stringObj = this.parseProtocol(data)
+
+        stringObj && cacheStringArr.push(stringObj)
+
+        if (cacheStringArr.length > 100) {
+          await this.resolveData(cacheStringArr)
+          cacheStringArr = []
+        }
+      } catch (e) {
+        throw new Error(e)
+      }
     })
 
-    stream.on('end', () => {
-      resolve('读取完成' + filePath)
+    stream.on('end', async () => {
+      try {
+        await this.resolveData(cacheStringArr)
+
+        this.readFile()
+      } catch (err) {
+        throw new Error(new Error(err))
+      }
     })
-
-    stream.on('error', (err) => {
-      reject(err)
-    })
-  })
-}
-
-/**
- * @description 解析协议
- * @param {String}} string
- */
-
-function parseProtocol (string, form) {
-  let res
-
-  if (isProtocolJson(string)) {
-    res = parseJsonLog(string)
-  } else if (isProtocolString(string)) {
-    res = parseStringLog(string)
-  } else if (isProtocolTlv(string)) {
-    res = parseTlvLog(string)
   }
 
-  if (!res) return
-  if (form.type === 1) {
-    exportTxt(res, form)
-  } else if (form.type === 0) {
-    intoDatabase(res, form)
-  }
-}
-
-/**
- * @description导出为txt
- * @param {JsonString} jsonString
- * @param {Object} form { importDirectory: '', type: 1, exportDirectory: '', databaseType: '',connectString: '' }
- */
-function exportTxt (jsonString, form) {
-  const filename = form.exportDirectory ? form.exportDirectory : `${config.savePath}/${config.logFileName}.txt`
-  try {
-    if (!fs.existsSync(config.savePath)) {
-      fs.mkdirSync(config.savePath)
-      fs.appendFileSync(filename, `\n${jsonString}`)
-    } else {
-      fs.appendFileSync(filename, `\n${jsonString}`)
+  parseProtocol (string) {
+    if (isProtocolJson(string)) {
+      return parseJsonLog(string)
     }
-  } catch (e) {
-    console.error(e)
+
+    if (isProtocolString(string)) {
+      return parseStringLog(string)
+    }
+
+    if (isProtocolTlv(string)) {
+      return parseTlvLog(string)
+    }
   }
-}
 
-/**
- * @description插入数据库
- * @param {JsonString} jsonString
- * @param {Object} form { importDirectory: '', type: 1, exportDirectory: '', databaseType: '',connectString: '' }
- */
-export async function intoDatabase (jsonString, form) {
-  try {
-    const res = JSON.parse(jsonString)
-    const sql = await connect(form.databaseType, { user: 'root', password: '123456789', database: form.connectString })
-    const keys = Object.keys(res.column)
+  async resolveData (cacheStringArr) {
+    if (cacheStringArr.length === 0) return Promise.resolve()
+    if (this.form.type === 1) {
+      this.exportTxt(cacheStringArr)
+    } else if (this.form.type === 0) {
+      try {
+        await this.intoDatabase(cacheStringArr)
+      } catch (err) {
+        throw new Error(err)
+      }
+    }
+  }
 
-    const values = []
-    Object.keys(res.column).forEach(item => {
-      values.push(res.column[item])
-    })
+  exportTxt (jsonStringArr) {
+    const filename = this.form.exportDirectory ? this.form.exportDirectory : `${config.savePath}/${config.logFileName}.txt`
 
-    await sql.insertOne('device_log', keys, values)
-  } catch (err) {
-    throw new Error(err)
+    const content = jsonStringArr.join('\n')
+    try {
+      if (!fs.existsSync(config.savePath)) {
+        fs.mkdirSync(config.savePath)
+        fs.appendFileSync(filename, `\n${content}`)
+      } else {
+        fs.appendFileSync(filename, `\n${content}`)
+      }
+    } catch (e) {
+      console.error(e)
+      throw new Error(e)
+    }
+  }
+
+  async intoDatabase (jsonStringArr) {
+    if (!jsonStringArr || !Array.isArray(jsonStringArr) || jsonStringArr.length === 0) return
+    try {
+      const values = []
+
+      let keys = []
+
+      jsonStringArr.forEach(jsonString => {
+        const res = JSON.parse(jsonString)
+
+        const arr = []
+
+        keys = Object.keys(res.column)
+
+        keys.forEach(item => {
+          arr.push(res.column[item])
+        })
+
+        values.push(arr)
+      })
+
+      await this.sql.insertBatch('device_log', keys, values)
+    } catch (err) {
+      try {
+        const content = jsonStringArr.join('\n')
+        if (!fs.existsSync(config.savePath)) {
+          fs.mkdirSync(config.savePath)
+          fs.appendFileSync(`${config.savePath}/unInsertData-log.txt`, content)
+        } else {
+          fs.appendFileSync(`${config.savePath}/unInsertData-log.txt`, content)
+        }
+      } catch (err) {
+        throw new Error(err)
+      }
+    }
   }
 }

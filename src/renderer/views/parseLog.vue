@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-10-08 09:18:58
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-12 14:18:57
+ * @LastEditTime: 2021-10-14 14:22:39
 -->
 <template>
   <div class="d-parse-log center">
@@ -11,7 +11,7 @@
       <h3 class="d-parse-log-inner_title">日志解析</h3>
       <el-form :model='form'>
         <el-form-item>
-          <div @click='onIpcDirectory("importDirectory")'>
+          <div @click='openDirectory'>
           <el-input
             ref="importDirectory"
             class="el-input__inner-radius"
@@ -32,7 +32,7 @@
           </el-select>
         </el-form-item>
         <el-form-item v-if="isExcel">
-          <div @click='onIpcDirectory("exportDirectory")'>
+          <div @click='openFile'>
             <el-input
               ref="exportDirectory"
               class="el-input__inner-radius"
@@ -56,8 +56,9 @@
             </el-select>
           </el-form-item>
           <el-form-item>
-            <div @click='openFileDB("connectString")'>
+            <div @click='openFileDB'>
               <el-input
+                ref="connectString"
                 class="el-input__inner-radius"
                 v-model="form.connectString "
                 :style="style"
@@ -75,10 +76,8 @@
 
 <script>
 import { navList } from '@/common/aside'
-import eventBus from '@/util/eventBus'
 import BaseSvgIcon from '@/components/BaseSvgIcon.vue'
-import { onDialog } from '@/ipc/dialog'
-import { onParse } from '@/ipc/parse'
+import { ipcSend } from '@/ipc'
 import { config } from '#/config/index'
 export default {
   components: { BaseSvgIcon },
@@ -118,54 +117,59 @@ export default {
     }
   },
 
-  created () {
-    eventBus.$on('onDialog', this.setValue)
-    eventBus.$on('parse', this.parse)
-
-    this.$once('hook:beforeDestroy', () => {
-      eventBus.$off('onDialog', this.setValue)
-      eventBus.$off('parse', this.parse)
-    })
-  },
-
   methods: {
-    setValue (type, value) {
-      if (Array.isArray(value) && value.length > 0) {
-        this.form[type] = value.shift()
-      }
-      this.$refs[type].blur()
-    },
 
     parse (res) {
       this.loading = false
     },
 
-    onIpcDirectory (directory) {
-      let properties = ['openDirectory']
-      let filters = []
-      if (directory === 'exportDirectory') {
-        properties = ['openFile']
-        filters = [
-          { name: 'Txt', extensions: ['txt'] }
-        ]
-      }
-      onDialog(directory, { properties, filters })
+    async openFile () {
+      const properties = ['openFile']
+      const filters = [
+        { name: 'Txt', extensions: ['txt'] }
+      ]
+      const res = await ipcSend({ sign: 'dialog/openFile', params: { properties, filters } })
+
+      this.form.exportDirectory = res.shift()
+
+      this.$refs.exportDirectory.blur()
     },
 
-    submitForm () {
+    async openDirectory () {
+      const res = await ipcSend({ sign: 'dialog/openFile', params: { properties: ['openDirectory'] } })
+      this.form.importDirectory = res.shift()
+
+      this.$refs.importDirectory.blur()
+    },
+
+    async submitForm () {
       this.loading = true
-      onParse(this.form)
+      try {
+        await ipcSend({ sign: 'parse/parse', params: this.form })
+        let msg = '解析成功'
+        this.form.connectString ? msg = '入库成功' : msg = '解析成功'
+        this.$message({ type: 'success', message: msg })
+      } catch (e) {
+        console.error(e)
+      }
+      this.loading = false
     },
 
-    openFileDB (type) {
-      if (this.form.databaseType === 'SQLite') {
-        const obj = {
-          properties: ['openFile'],
-          filters: [
-            { name: 'db', extensions: ['db'] }
-          ]
+    async openFileDB () {
+      try {
+        if (this.form.databaseType === 'SQLite') {
+          const obj = {
+            properties: ['openFile'],
+            filters: [
+              { name: '*', extensions: ['db'] }
+            ]
+          }
+          const res = await ipcSend({ sign: 'opeFlie', params: obj })
+          this.form.connectString = res.shift()
+          this.$refs.connectString.blur()
         }
-        onDialog(type, obj)
+      } catch (e) {
+        console.error(e)
       }
     }
   }

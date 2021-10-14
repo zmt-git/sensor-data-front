@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-27 14:13:59
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-13 15:00:13
+ * @LastEditTime: 2021-10-14 14:06:57
  */
 import { exportExcel, importExcel } from '../utils'
 const sqlite3 = require('sqlite3').verbose()
@@ -26,23 +26,23 @@ export default class SQLite {
     })
   }
 
-  query (sign, querySql) {
+  query (querySql) {
     return new Promise((resolve, reject) => {
       this.connection.all(querySql, (err, result) => {
         if (err) {
           reject(err)
           return
         }
-        resolve({ sign, result })
+        resolve(result)
       })
     })
   }
 
   async getTableName () {
-    const res = await this.query('show', 'SELECT name FROM sqlite_master where type="table" order by name')
+    const res = await this.query('SELECT name FROM sqlite_master where type="table" order by name')
     const result = []
 
-    res.result.forEach(item => {
+    res.forEach(item => {
       result.push(item.name)
     })
 
@@ -156,8 +156,8 @@ export default class SQLite {
     conf.cols = []
     // 获取数据库列名
     try {
-      const field = await this.query('DESCRIBE', `PRAGMA table_info(${tabledName})`)
-      field.result.forEach(item => {
+      const field = await this.query(`PRAGMA table_info(${tabledName})`)
+      field.forEach(item => {
         conf.cols.push({
           caption: item.name,
           type: 'string'
@@ -175,8 +175,6 @@ export default class SQLite {
         })
         conf.rows.push(row)
       })
-
-      console.log(conf)
 
       const res = await exportExcel(conf)
 

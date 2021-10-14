@@ -3,15 +3,14 @@
  * @Author: zmt
  * @Date: 2021-09-29 09:02:28
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-13 15:04:00
+ * @LastEditTime: 2021-10-14 14:02:39
 -->
 <template>
   <div class="d-sql" @mouseup="onCancelMove">
     <SQL-header
+      @importExcel='onRefresh'
       @query='query'
       @refresh='onRefresh'
-      :queryLoading='queryLoading'
-      :refreshLoading='refreshLoading'
     ></SQL-header>
     <section ref='section' class="d-sql-section" @mousedown="onStartMove">
       <SQL-aside :list='tableList' :current='currentTableName' @onClick='onCurrentTable'></SQL-aside>
@@ -29,8 +28,7 @@ import SQLAside from '@/components/SQL/SQLAside.vue'
 import SQLHeader from '@/components/SQL/SQLHeader.vue'
 import SQLQuery from '@/components/SQL/SQLQuery.vue'
 import SQLTable from '@/components/SQL/SQLTable.vue'
-import { emitQuery, emitGetTableName } from '@/ipc/database'
-import eventBus from '@/util/eventBus'
+import { ipcSend } from '@/ipc'
 import { Message } from 'element-ui'
 export default {
   name: 'd-sql-section',
@@ -43,8 +41,6 @@ export default {
 
   data () {
     return {
-      refreshLoading: false,
-      queryLoading: false,
       statement: '',
       tableList: [],
       tableData: []
@@ -53,83 +49,51 @@ export default {
 
   created () {
     this.onShowTables()
-
-    eventBus.$on('query', this.onQuery)
-    eventBus.$on('getTableName', this.getTableName)
-
-    this.$once('hook:beforeDestroy', () => {
-      eventBus.$off('query', this.onQuery)
-      eventBus.$off('getTableName', this.getTableName)
-    })
   },
 
   methods: {
     // ==========切换表==========
-    onCurrentTable (item) {
-      this.$store.dispatch('actionsCurrentTableName', item)
-      this.getTableData()
+    async onCurrentTable (item) {
+      await this.$store.dispatch('actionsCurrentTableName', item)
+      await this.getTableData()
     },
-    // ==========查询回调==========
-    onQuery (res) {
-      if (res.code === 1) {
-        let fn
-        switch (res.result.sign) {
-          case 'selectAll' : fn = this.setTableData
-            break
-          case 'custom' : fn = this.getTableData
-            break
-          default : fn = undefined
-        }
-        fn && fn(res.result)
-      } else {
-        this.refreshLoading = false
-        this.queryLoading = false
+
+    // ==========获取表名数据==========
+    async onShowTables () {
+      try {
+        const res = await ipcSend({ sign: 'database/getTableName', params: { type: this.currentDataBase } })
+        this.tableList = res
+      } catch (e) {
+        console.error(e)
       }
     },
 
-    getTableName (res) {
-      console.log(res)
-      this.tableList = res.result
-    },
-
-    // ==========导入数据成功==========
-    importExcel (res) {
-      if (res.code === 1) {
-        this.onRefresh()
+    // ==========获取指定表数据==========
+    async getTableData () {
+      try {
+        const res = await ipcSend({ sign: 'database/getTableData', params: { type: this.currentDataBase, tableName: this.currentTableName, pageNum: 1, pageSize: 1000 } })
+        this.tableData = res
+      } catch (e) {
+        console.error(e)
       }
-    },
-
-    // ==========获取表list数据==========
-    onShowTables () {
-      emitGetTableName(this.currentDataBase)
-    },
-
-    // ==========获取表指定表数据==========
-    getTableData () {
-      emitQuery(this.currentDataBase, 'selectAll', `select * from ${this.currentTableName}`)
-    },
-
-    // ==========设置表指定表数据==========
-    setTableData (result) {
-      this.refreshLoading = false
-      this.queryLoading = false
-      this.tableData = result.result
     },
 
     // ==========刷新表list数据==========
-    onRefresh () {
-      this.refreshLoading = true
-      this.getTableData()
+    async onRefresh () {
+      await this.getTableData()
     },
 
-    // ==========执行sql语句=========
-    query () {
+    // ==========执行sql自定义语句语句=========
+    async query () {
       if (!this.statement) {
         Message({ type: 'info', message: '询问语句不能为空' })
         return
       }
-      this.queryLoading = true
-      emitQuery(this.currentDataBase, 'custom', this.statement)
+      try {
+        await ipcSend({ sign: 'database/query', params: { type: this.currentDataBase, statement: this.statement } })
+      } catch (e) {
+        console.error(e)
+      }
     },
 
     // ==========改变侧边栏大小 移动开始==========

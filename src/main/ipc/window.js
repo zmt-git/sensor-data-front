@@ -3,28 +3,42 @@
  * @Author: zmt
  * @Date: 2021-10-08 10:17:05
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-08 12:02:29
+ * @LastEditTime: 2021-10-14 12:03:42
  */
-import { ipcMain } from 'electron'
-/**
- * @description 窗口 关闭 最小化 最大化 还原
- * @param {BrowserWindow} mainWindow
- */
-export function ipc (mainWindow) {
-  ipcMain.on('window-min', (event) => {
-    mainWindow.minimize()
-  })
-  ipcMain.on('window-max', (event) => {
-    if (mainWindow.isMaximized()) {
-      mainWindow.unmaximize()
-    } else {
-      mainWindow.maximize()
-    }
 
-    mainWindow.webContents.send('isMax', mainWindow.isMaximized())
-  })
-  ipcMain.on('window-close', (event) => {
-    console.log('close')
-    mainWindow.close()
-  })
+function min (mainWindow) {
+  mainWindow.minimize()
+}
+
+function max (mainWindow) {
+  if (mainWindow.isMaximized()) {
+    mainWindow.unmaximize()
+  } else {
+    mainWindow.maximize()
+  }
+
+  return mainWindow.isMaximized()
+}
+
+function close (mainWindow) {
+  mainWindow.destroy()
+}
+
+function changeSize (mainWindow, params) {
+  const { type } = params
+  let width = 1290
+  let height = 720
+  if (type === 0) {
+    width = 300
+    height = 480
+  }
+  mainWindow.setSize(width, height)
+  mainWindow.center()
+}
+
+export default {
+  min,
+  max,
+  close,
+  changeSize
 }
