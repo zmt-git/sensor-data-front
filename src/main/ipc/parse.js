@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-10-08 14:34:58
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-14 14:45:25
+ * @LastEditTime: 2021-10-15 09:22:56
  */
 import ParseLog from '../parseLog/index'
 /**
@@ -11,9 +11,9 @@ import ParseLog from '../parseLog/index'
  * @param {BrowserWindow} mainWindow
  */
 
-async function parse (form) {
+async function parse (params) {
   try {
-    const p = new ParseLog(form)
+    const p = new ParseLog(params)
     await p.parse()
   } catch (e) {
     throw new Error(e)

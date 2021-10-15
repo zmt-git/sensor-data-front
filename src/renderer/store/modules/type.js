@@ -3,14 +3,15 @@
  * @Author: zmt
  * @Date: 2021-09-26 16:33:11
  * @LastEditors: zmt
- * @LastEditTime: 2021-09-30 15:50:53
+ * @LastEditTime: 2021-10-15 08:34:40
  */
 export default {
   state: {
     Oracle: false,
     MySQL: false,
     SQLite: false,
-    currentDataBase: 'MySQL'
+    currentDataBase: 'MySQL',
+    forwardLogin: false
   },
 
   mutations: {
@@ -28,6 +29,10 @@ export default {
 
     setCurrentDataBase (state, type) {
       state.currentDataBase = type
+    },
+
+    setForwardLogin (state, forwardLogin) {
+      state.forwardLogin = forwardLogin
     }
   },
 
@@ -40,6 +45,9 @@ export default {
     },
     actionSqliteIsLogin ({ commit }, isLogin) {
       commit('setSqliteIsLogin', isLogin)
+    },
+    actionForwardLogin ({ commit }, isLogin) {
+      commit('setForwardLogin', isLogin)
     },
     actionSqlIsLogin ({ commit }, obj) {
       const { type, value: isLogin } = obj

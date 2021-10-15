@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-26 11:56:42
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-14 12:01:44
+ * @LastEditTime: 2021-10-15 09:38:48
 -->
 <template>
   <div class="d-layout">
@@ -59,6 +59,8 @@ export default {
 
   created () {
     ipcRenderer.once('created', this.changeSize)
+
+    this.changeSize()
   },
 
   methods: {

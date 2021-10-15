@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-10-08 13:47:44
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-14 16:11:07
+ * @LastEditTime: 2021-10-15 09:29:01
  */
 // 选取目录 -> 获取目录.log文件 -> 读取文件
 // 读取文件 -> 按行读取 -> 解析
@@ -24,8 +24,10 @@ const readline = require('readline')
 // todo 导出为excel文件
 
 export default class ParseLog {
-  constructor (form) {
-    this.form = form
+  constructor (params) {
+    this.params = params
+    this.base = this.params.base
+    this.databaseForm = this.params.database
     this.sql = null
     this.filePaths = []
     this.currentFile = ''
@@ -37,7 +39,7 @@ export default class ParseLog {
 
   async parse () {
     try {
-      if (this.form.type === 0) {
+      if (this.base.type === 0) {
         await this.connect()
       }
 
@@ -52,8 +54,8 @@ export default class ParseLog {
   async connect () {
     try {
       this.sql = await connect({
-        type: this.form.databaseType,
-        form: { user: 'root', password: '123456789', connectString: this.form.connectString }
+        type: this.databaseForm.databaseType,
+        form: this.databaseForm
       }, true)
     } catch (e) {
       console.error(e)
@@ -63,8 +65,8 @@ export default class ParseLog {
 
   getFilePath () {
     try {
-      const arr = fs.readdirSync(this.form.importDirectory).map(fileName => {
-        return path.join(this.form.importDirectory, fileName)
+      const arr = fs.readdirSync(this.base.importDirectory).map(fileName => {
+        return path.join(this.base.importDirectory, fileName)
       })
         .filter(this.isFile)
 
@@ -129,9 +131,9 @@ export default class ParseLog {
 
   async resolveData (cacheStringArr) {
     if (cacheStringArr.length === 0) return Promise.resolve()
-    if (this.form.type === 1) {
+    if (this.base.type === 1) {
       this.exportTxt(cacheStringArr)
-    } else if (this.form.type === 0) {
+    } else if (this.base.type === 0) {
       try {
         await this.intoDatabase(cacheStringArr)
       } catch (err) {
@@ -141,7 +143,7 @@ export default class ParseLog {
   }
 
   exportTxt (jsonStringArr) {
-    const filename = this.form.exportDirectory ? this.form.exportDirectory : `${config.savePath}/${config.logFileName}.txt`
+    const filename = this.base.exportDirectory ? this.base.exportDirectory : `${config.savePath}/${config.logFileName}.txt`
 
     const content = jsonStringArr.join('\n')
     try {
@@ -178,7 +180,7 @@ export default class ParseLog {
         values.push(arr)
       })
 
-      await this.sql.insertBatch('device_log', keys, values)
+      await this.sql.insertBatch(this.databaseForm.tableName, keys, values)
     } catch (err) {
       try {
         const content = jsonStringArr.join('\n')

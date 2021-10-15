@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-26 16:28:18
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-14 13:43:03
+ * @LastEditTime: 2021-10-15 09:00:05
 -->
 <template>
   <div class="login-data-base" v-loading='loading'>
@@ -57,7 +57,7 @@
           </div>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" :disabled='disabled' @click="submitForm()" class="width-100" round>登录</el-button>
+        <el-button type="primary" :disabled='disabled' @click="submitForm()" class="width-100">登录</el-button>
       </el-form-item>
     </el-form>
   </div>

@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-10-12 08:52:20
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-14 14:00:14
+ * @LastEditTime: 2021-10-15 09:04:10
  */
 import { config } from '../config'
 import { openFileSync } from './file'
@@ -59,18 +59,6 @@ export function importExcel () {
     const fields = workSheetsFromBuffer[0].data.shift()
 
     return { data: workSheetsFromBuffer[0].data, fields: fields }
-  } catch (err) {
-    throw new Error(err)
-  }
-}
-
-export async function writeConfigFile (content) {
-  try {
-    const res = fs.readFileSync(path.join(__dirname, 'config.js'), 'utf8')
-
-    console.log(res)
-
-    // await fs.writeFile(content)
   } catch (err) {
     throw new Error(err)
   }

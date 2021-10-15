@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-10-08 09:18:58
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-14 14:22:39
+ * @LastEditTime: 2021-10-15 09:21:55
 -->
 <template>
   <div class="d-parse-log center">
@@ -44,30 +44,10 @@
           </div>
         </el-form-item>
         <template v-else>
-          <el-form-item>
-            <el-select
-              class="el-input__inner-radius"
-              placeholder="数据库类型"
-              :style="style"
-              v-model="form.databaseType">
-              <el-option v-for="item in databaseType" :key="item.id" :value="item.id">
-                <base-svg-icon :iconName="item.icon" font-size="40px"></base-svg-icon>
-              </el-option>
-            </el-select>
-          </el-form-item>
-          <el-form-item>
-            <div @click='openFileDB'>
-              <el-input
-                ref="connectString"
-                class="el-input__inner-radius"
-                v-model="form.connectString "
-                :style="style"
-                placeholder="链接字符串"></el-input>
-            </div>
-          </el-form-item>
+          <froward-form :form='databaseForm'></froward-form>
         </template>
         <el-form-item>
-          <el-button :loading='loading' type="primary" @click="submitForm" class="width-100" round>{{btnName}}</el-button>
+          <el-button :loading='loading' type="primary" @click="submitForm" class="width-100">{{btnName}}</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -76,11 +56,11 @@
 
 <script>
 import { navList } from '@/common/aside'
-import BaseSvgIcon from '@/components/BaseSvgIcon.vue'
 import { ipcSend } from '@/ipc'
 import { config } from '#/config/index'
+import FrowardForm from '../components/FrowardForm.vue'
 export default {
-  components: { BaseSvgIcon },
+  components: { FrowardForm },
   name: 'parse-log',
 
   computed: {
@@ -103,9 +83,16 @@ export default {
       form: {
         importDirectory: '',
         type: 1,
-        exportDirectory: `${config.savePath}/${config.logFileName}.txt`,
-        databaseType: '',
-        connectString: ''
+        exportDirectory: `${config.savePath}/${config.logFileName}.txt`
+      },
+      databaseForm: {
+        databaseType: 'MySQL',
+        host: 'localhost',
+        port: '3306',
+        user: 'root',
+        password: '123456789',
+        connectString: 'test',
+        tableName: 'test'
       },
       options: [
         { value: 0, label: '入库' },
@@ -145,7 +132,7 @@ export default {
     async submitForm () {
       this.loading = true
       try {
-        await ipcSend({ sign: 'parse/parse', params: this.form })
+        await ipcSend({ sign: 'parse/parse', params: { base: this.form, database: this.databaseForm } })
         let msg = '解析成功'
         this.form.connectString ? msg = '入库成功' : msg = '解析成功'
         this.$message({ type: 'success', message: msg })

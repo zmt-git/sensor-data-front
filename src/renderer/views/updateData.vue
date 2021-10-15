@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-10-08 09:17:40
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-14 14:25:20
+ * @LastEditTime: 2021-10-15 09:00:31
 -->
 <template>
   <div class="d-update-data">
@@ -13,7 +13,9 @@
     </div>
 
     <div class="d-update-data-center center">
-      <el-button type="primary" @click="submitForm" class="width-100" round>转发</el-button>
+      <el-button type="primary" @click="submitForm" class="width-100">
+        <base-svg-icon iconName="icon-tongbu1" font-size="20px"></base-svg-icon>
+      </el-button>
     </div>
 
     <div class="d-update-data-item center">
@@ -27,10 +29,11 @@
 import { navList } from '@/common/aside'
 import { ipcSend } from '@/ipc'
 import FrowardForm from '../components/FrowardForm.vue'
+import BaseSvgIcon from '../components/BaseSvgIcon.vue'
 export default {
   name: 'update-data',
 
-  components: { FrowardForm },
+  components: { FrowardForm, BaseSvgIcon },
 
   computed: {
     databaseType () {
@@ -69,7 +72,7 @@ export default {
       this.loading = true
       try {
         await ipcSend({ sign: 'updateData/forward', params: { source: this.source, target: this.target } })
-        this.$message({ type: 'success', message: '转发成功' })
+        // this.$message({ type: 'success', message: '转发成功' })
       } catch (e) {
         console.error(e)
       }

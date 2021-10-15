@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-10-09 15:21:49
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-14 15:20:55
+ * @LastEditTime: 2021-10-15 08:35:05
  */
 /**
  * 1.链接数据库
@@ -34,7 +34,7 @@ export default class ForwardsDatabase {
       // 链接目标数据库
       this.targetConnection = await connect({ type: this.targetForm.databaseType, form: this.targetForm }, true)
 
-      await this.startForward()
+      // await this.startForward()
     } catch (e) {
       throw new Error(e)
     }
