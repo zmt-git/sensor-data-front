@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-29 09:02:28
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-14 14:02:39
+ * @LastEditTime: 2021-10-18 17:25:29
 -->
 <template>
   <div class="d-sql" @mouseup="onCancelMove">
@@ -17,6 +17,7 @@
       <main class="d-sql-section-main">
         <SQL-query v-model="statement"></SQL-query>
         <SQL-table :tableData="tableData"></SQL-table>
+        <SQL-footer :pageNum='pageNum' :total="total" :pageSize="pageSize" @handleSizeChange='handleSizeChange' @handleCurrentChange='handleCurrentChange'></SQL-footer>
       </main>
     </section>
   </div>
@@ -30,10 +31,11 @@ import SQLQuery from '@/components/SQL/SQLQuery.vue'
 import SQLTable from '@/components/SQL/SQLTable.vue'
 import { ipcSend } from '@/ipc'
 import { Message } from 'element-ui'
+import SQLFooter from '../components/SQL/SQLFooter.vue'
 export default {
   name: 'd-sql-section',
 
-  components: { SQLHeader, SQLAside, SQLQuery, SQLTable },
+  components: { SQLHeader, SQLAside, SQLQuery, SQLTable, SQLFooter },
 
   computed: {
     ...mapGetters(['currentDataBase', 'currentTableName'])
@@ -43,7 +45,10 @@ export default {
     return {
       statement: '',
       tableList: [],
-      tableData: []
+      tableData: [],
+      pageNum: 1,
+      pageSize: 100,
+      total: 0
     }
   },
 
@@ -52,6 +57,8 @@ export default {
   },
 
   methods: {
+    handleSizeChange (e) {},
+    handleCurrentChange (e) {},
     // ==========切换表==========
     async onCurrentTable (item) {
       await this.$store.dispatch('actionsCurrentTableName', item)
@@ -71,8 +78,9 @@ export default {
     // ==========获取指定表数据==========
     async getTableData () {
       try {
-        const res = await ipcSend({ sign: 'database/getTableData', params: { type: this.currentDataBase, tableName: this.currentTableName, pageNum: 1, pageSize: 1000 } })
-        this.tableData = res
+        const res = await ipcSend({ sign: 'database/getTableData', params: { type: this.currentDataBase, tableName: this.currentTableName, pageNum: this.pageNum, pageSize: this.pageSize } })
+        this.tableData = res.records
+        this.total = res.total
       } catch (e) {
         console.error(e)
       }

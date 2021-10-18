@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-27 13:33:58
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-18 16:55:44
+ * @LastEditTime: 2021-10-18 17:26:08
  */
 import { exportExcel, importExcel } from '../utils'
 
@@ -147,6 +147,18 @@ export default class MySQL {
           reject(new Error(`${tabledName}分页获取数据失败`))
         }
         resolve(res)
+      })
+    })
+  }
+
+  getRows (tabledName) {
+    return new Promise((resolve, reject) => {
+      this.connection.query(`SELECT COUNT(1) AS COUNT FROM ${tabledName}`, (err, res) => {
+        if (err) {
+          console.error(err)
+          reject(new Error(`${tabledName}获取总条数数据失败`))
+        }
+        resolve(res.pop().COUNT)
       })
     })
   }
