@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-29 09:02:28
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-18 17:25:29
+ * @LastEditTime: 2021-10-18 17:28:14
 -->
 <template>
   <div class="d-sql" @mouseup="onCancelMove">
@@ -57,8 +57,14 @@ export default {
   },
 
   methods: {
-    handleSizeChange (e) {},
-    handleCurrentChange (e) {},
+    async handleSizeChange (e) {
+      this.pageSize = e
+      await this.getTableData()
+    },
+    async handleCurrentChange (e) {
+      this.pageNum = e
+      await this.getTableData()
+    },
     // ==========切换表==========
     async onCurrentTable (item) {
       await this.$store.dispatch('actionsCurrentTableName', item)
