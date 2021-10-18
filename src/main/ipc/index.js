@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-10-08 10:12:45
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-14 13:52:56
+ * @LastEditTime: 2021-10-18 14:51:06
  */
 import { ipcMain } from 'electron'
 
@@ -33,7 +33,6 @@ export function registerIpcMain (mainWindow) {
 
       mainWindow.webContents.send('rendererProcess', res)
     } catch (e) {
-      console.error(e)
       mainWindow.webContents.send('rendererProcess', { code: 0, sign: obj.sign, msg: 'error', data: e })
     }
   })

@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-27 13:33:58
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-14 11:24:21
+ * @LastEditTime: 2021-10-18 16:55:44
  */
 import { exportExcel, importExcel } from '../utils'
 
@@ -27,7 +27,12 @@ export default class MySQL {
 
       this.connection.connect((err) => {
         if (err) {
-          reject(err)
+          console.error(err)
+          if (err.code === 'ER_ACCESS_DENIED_ERROR') {
+            reject(new Error('账号或密码错误'))
+          } else {
+            reject(new Error('链接数据库失败'))
+          }
           return
         }
         resolve(this.connection)
@@ -44,7 +49,12 @@ export default class MySQL {
     return new Promise((resolve, reject) => {
       this.connection.query(querySql, (err, result) => {
         if (err) {
-          reject(err)
+          console.error(err)
+          if (err.code === 'ER_PARSE_ERROR') {
+            reject(new Error('语法错误'))
+          } else {
+            reject(err)
+          }
           return
         }
         resolve(result)
@@ -53,22 +63,28 @@ export default class MySQL {
   }
 
   async getTableName () {
-    const res = await this.query('show tables')
+    try {
+      const res = await this.query('show tables')
 
-    const result = []
+      const result = []
 
-    res.forEach(item => {
-      result.push(item[`Tables_in_${this.form.connectString}`])
-    })
+      res.forEach(item => {
+        result.push(item[`Tables_in_${this.form.connectString}`])
+      })
 
-    return result
+      return result
+    } catch (err) {
+      console.error(err)
+      throw new Error(`获取${this.form.connectString}表名失败`)
+    }
   }
 
   async getColum (tabledName) {
     return new Promise((resolve, reject) => {
       this.connection.query(`SHOW COLUMNS FROM ${tabledName}`, (err, res) => {
         if (err) {
-          reject(err)
+          console.error(err)
+          reject(new Error(`获取${tabledName}列名失败`))
         }
         const arr = []
 
@@ -90,7 +106,8 @@ export default class MySQL {
     return new Promise((resolve, reject) => {
       this.connection.query(`INSERT INTO ${tabledName} (${keys.join(',')}) VALUES (${data.join(',')})`, (err, res) => {
         if (err) {
-          reject(err)
+          console.error(err)
+          reject(new Error(`${tabledName}添加数据失败`))
         }
         resolve(res)
       })
@@ -102,7 +119,8 @@ export default class MySQL {
     return new Promise((resolve, reject) => {
       this.connection.query(sql, [data], (err, res) => {
         if (err) {
-          reject(err)
+          console.error(err)
+          reject(new Error(`${tabledName}批量添加数据失败`))
         }
         resolve(res)
       })
@@ -113,7 +131,8 @@ export default class MySQL {
     return new Promise((resolve, reject) => {
       this.connection.query(`SELECT * FROM ${tabledName}`, (err, res) => {
         if (err) {
-          reject(err)
+          console.error(err)
+          reject(new Error(`${tabledName}获取数据失败`))
         }
         resolve(res)
       })
@@ -122,9 +141,10 @@ export default class MySQL {
 
   selectLimit (tabledName, pageNum, pageSize) {
     return new Promise((resolve, reject) => {
-      this.connection.query(`SELECT * FROM ${tabledName} LIMIT ${(pageNum - 1) * pageSize}, ${pageNum * pageSize}`, (err, res) => {
+      this.connection.query(`SELECT * FROM ${tabledName} LIMIT ${(pageNum - 1) * pageSize}, ${pageSize}`, (err, res) => {
         if (err) {
-          reject(err)
+          console.error(err)
+          reject(new Error(`${tabledName}分页获取数据失败`))
         }
         resolve(res)
       })
@@ -136,7 +156,8 @@ export default class MySQL {
     return new Promise((resolve, reject) => {
       this.connection.end((err) => {
         if (err) {
-          reject(err)
+          console.error(err)
+          reject(new Error(`${this.form.type}断开链接失败`))
         }
         resolve()
         this.connection = null
@@ -191,7 +212,7 @@ export default class MySQL {
       const result = importExcel()
       if (!result) return
       const { fields, data } = result
-      const res = this.insertBatch(tabledName, fields, data)
+      const res = await this.insertBatch(tabledName, fields, data)
 
       return res
     } catch (err) {

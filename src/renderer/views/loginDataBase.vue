@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-26 16:28:18
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-15 09:00:05
+ * @LastEditTime: 2021-10-18 16:09:32
 -->
 <template>
   <div class="login-data-base" v-loading='loading'>
@@ -154,6 +154,7 @@ export default {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  overflow: auto;
 }
 .fs60{
   font-size: 120px;

@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-28 11:28:42
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-14 14:04:48
+ * @LastEditTime: 2021-10-18 13:58:02
  */
 import { ipcRenderer } from 'electron'
 import { Message } from 'element-ui'
@@ -27,7 +27,7 @@ export function ipcSend (obj) {
       if (res.sign === obj.sign) {
         if (res.code === 0) {
           reject(res)
-          Message({ type: 'error', message: res.msg })
+          Message({ type: 'error', message: res.data.message.split('Error:').pop() })
         } else {
           resolve(res.data)
         }

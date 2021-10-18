@@ -3,10 +3,10 @@
  * @Author: zmt
  * @Date: 2021-10-08 09:17:40
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-15 09:00:31
+ * @LastEditTime: 2021-10-18 16:08:34
 -->
 <template>
-  <div class="d-update-data">
+  <div class="d-update-data" v-loading='loading'>
     <div class="d-update-data-item center">
       <h3 class="d-update-data-title">源数据库</h3>
       <froward-form :form='source'></froward-form>
@@ -43,6 +43,7 @@ export default {
 
   data () {
     return {
+      loading: false,
       source: {
         databaseType: 'MySQL',
         host: 'localhost',
@@ -72,7 +73,8 @@ export default {
       this.loading = true
       try {
         await ipcSend({ sign: 'updateData/forward', params: { source: this.source, target: this.target } })
-        // this.$message({ type: 'success', message: '转发成功' })
+
+        this.$message({ type: 'success', message: '转发成功' })
       } catch (e) {
         console.error(e)
       }
@@ -87,6 +89,7 @@ export default {
   width: 100%;
   height: 100%;
   display: flex;
+  overflow: auto;
   &-title{
     text-align:center;
     margin: 10px 0px;

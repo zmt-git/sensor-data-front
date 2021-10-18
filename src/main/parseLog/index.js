@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-10-08 13:47:44
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-15 09:29:01
+ * @LastEditTime: 2021-10-18 15:33:19
  */
 // 选取目录 -> 获取目录.log文件 -> 读取文件
 // 读取文件 -> 按行读取 -> 解析
@@ -43,7 +43,7 @@ export default class ParseLog {
         await this.connect()
       }
 
-      this.filePaths = this.getFilePath()
+      this.filePaths = await this.getFilePath()
 
       this.readFile()
     } catch (e) {
@@ -58,12 +58,11 @@ export default class ParseLog {
         form: this.databaseForm
       }, true)
     } catch (e) {
-      console.error(e)
       throw new Error(e)
     }
   }
 
-  getFilePath () {
+  async getFilePath () {
     try {
       const arr = fs.readdirSync(this.base.importDirectory).map(fileName => {
         return path.join(this.base.importDirectory, fileName)
@@ -73,12 +72,13 @@ export default class ParseLog {
       return arr.filter(item => path.extname(item) === '.log')
     } catch (e) {
       console.log(e)
-      throw new Error(e)
+      throw new Error('读取目录文件失败')
     }
   }
 
   readFile (cacheStringArr = []) {
     this.currentFile = this.filePaths.shift()
+
     if (!this.currentFile) {
       return
     }
@@ -96,8 +96,9 @@ export default class ParseLog {
         stringObj && cacheStringArr.push(stringObj)
 
         if (cacheStringArr.length > 100) {
-          await this.resolveData(cacheStringArr)
+          await this.resolveData(cacheStringArr, rl)
           cacheStringArr = []
+          rl.pause()
         }
       } catch (e) {
         throw new Error(e)
@@ -106,11 +107,11 @@ export default class ParseLog {
 
     stream.on('end', async () => {
       try {
-        await this.resolveData(cacheStringArr)
-
+        await this.resolveData(cacheStringArr, rl)
+        rl.close()
         this.readFile()
       } catch (err) {
-        throw new Error(new Error(err))
+        throw new Error(err)
       }
     })
   }
@@ -129,17 +130,22 @@ export default class ParseLog {
     }
   }
 
-  async resolveData (cacheStringArr) {
-    if (cacheStringArr.length === 0) return Promise.resolve()
-    if (this.base.type === 1) {
-      this.exportTxt(cacheStringArr)
-    } else if (this.base.type === 0) {
-      try {
-        await this.intoDatabase(cacheStringArr)
-      } catch (err) {
-        throw new Error(err)
-      }
+  async resolveData (cacheStringArr, rl) {
+    if (cacheStringArr.length === 0) {
+      rl.resume()
+      return
     }
+    try {
+      if (this.base.type === 1) {
+        this.exportTxt(cacheStringArr)
+      } else if (this.base.type === 0) {
+        await this.intoDatabase(cacheStringArr)
+      }
+    } catch (err) {
+      throw new Error(err)
+    }
+
+    rl.resume()
   }
 
   exportTxt (jsonStringArr) {
@@ -155,7 +161,10 @@ export default class ParseLog {
       }
     } catch (e) {
       console.error(e)
-      throw new Error(e)
+
+      fs.appendFileSync(`/${config.logFileName}.txt`, `\n${content}`)
+
+      throw new Error(`导出文件${config.savePath}路径不存在, 请查看/${path.join(__dirname, config.logFileName)}.txt文件`)
     }
   }
 
@@ -182,8 +191,8 @@ export default class ParseLog {
 
       await this.sql.insertBatch(this.databaseForm.tableName, keys, values)
     } catch (err) {
+      const content = jsonStringArr.join('\n')
       try {
-        const content = jsonStringArr.join('\n')
         if (!fs.existsSync(config.savePath)) {
           fs.mkdirSync(config.savePath)
           fs.appendFileSync(`${config.savePath}/unInsertData-log.txt`, content)
@@ -191,8 +200,11 @@ export default class ParseLog {
           fs.appendFileSync(`${config.savePath}/unInsertData-log.txt`, content)
         }
       } catch (err) {
-        throw new Error(err)
+        fs.appendFileSync('/unInsertData-log.txt', content)
+
+        throw new Error(`写入文件${config.savePath}路径不存在, 请查看/${path.join(__dirname, 'unInsertData-log')}.txt文件`)
       }
+      throw new Error(`批量添加数据失败，查看${config.savePath}/unInsertData-log.txt}文件`)
     }
   }
 }

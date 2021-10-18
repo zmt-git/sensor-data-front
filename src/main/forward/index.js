@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-10-09 15:21:49
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-15 10:04:34
+ * @LastEditTime: 2021-10-18 16:58:57
  */
 /**
  * 1.链接数据库
@@ -29,6 +29,10 @@ export default class ForwardsDatabase {
 
   async connect () {
     try {
+      if (this.sourceForm.databaseType === this.targetForm.databaseType && this.sourceForm.connectString === this.targetForm.connectString) {
+        throw new Error('目标数据库链接字符串与源数据库链接字符串不能相同')
+      }
+
       // 链接源数据库
       this.sourceConnection = await connect({ type: this.sourceForm.databaseType, form: this.sourceForm }, true)
       // 链接目标数据库
@@ -46,18 +50,18 @@ export default class ForwardsDatabase {
       this.sourceColumn = await this.sourceConnection.getColum(this.sourceForm.tableName)
 
       this.targetColumn = await this.targetConnection.getColum(this.targetForm.tableName)
+
+      if (this.sourceColumn.length === 0 || this.targetColumn.length === 0) return
+
+      if (!this.isSame()) {
+        throw new Error(`${this.sourceForm.databaseType}-${this.sourceForm.tableName}与${this.targetForm.databaseType}-${this.targetForm.tableName}字段不匹配`)
+      }
+
+      await this.insertData()
     } catch (e) {
       // 获取列表名异常处理
-      throw new Error('获取列表名称异常')
+      throw new Error(e)
     }
-
-    if (this.sourceColumn.length === 0 || this.targetColumn.length === 0) return
-
-    if (!this.isSame()) {
-      throw new Error(`${this.sourceForm.tableName} and ${this.targetForm.tableName} fields do not match`)
-    }
-
-    await this.insertData()
   }
 
   isSame () {
@@ -77,23 +81,22 @@ export default class ForwardsDatabase {
     const cacheArr = []
     try {
       const res = await this.sourceConnection.selectLimit(this.sourceForm.tableName, this.pageNum, this.pageSize)
-      res.forEach(item => {
+      res && res.forEach(item => {
         const arr = []
         Object.keys(item).forEach(key => {
           arr.push(item[key])
         })
         cacheArr.push(arr)
       })
-
-      if (res.length !== 0) {
+      if (res && res.length !== 0) {
         this.pageNum++
 
         await this.insertBatchData(cacheArr)
-
         await this.insertData()
       } else {
         await this.sourceConnection.close()
         await this.handleUnInsertData()
+        this.pageNum = 1
       }
     } catch (e) {
       // 查询异常处理
@@ -102,7 +105,15 @@ export default class ForwardsDatabase {
         database: `${this.sourceForm.connectString}-${this.sourceForm.tableName}`,
         position: { pageNum: this.pageNum, pageSize: this.pageSize }
       }
-      fs.appendFileSync(`${config.savePath}/selectData-forward.log`, JSON.stringify(obj))
+
+      try {
+        fs.appendFileSync(`${config.savePath}/selectData-forward.log`, JSON.stringify(obj))
+      } catch (e) {
+        fs.appendFileSync('/selectData-forward.log', JSON.stringify(obj))
+        throw new Error(`${config.savePath}路径不存在`)
+      }
+
+      throw new Error(e)
     }
   }
 
@@ -112,7 +123,7 @@ export default class ForwardsDatabase {
     } catch (e) {
       // 入库异常处理
       this.unInsertData.push(cacheArr)
-      // throw new Error(e)
+      throw new Error(e)
     }
   }
 
@@ -129,7 +140,14 @@ export default class ForwardsDatabase {
         database: `${this.targetForm.connectString}-${this.targetForm.tableName}`,
         data: this.unInsertData
       }
-      fs.appendFileSync(`${config.savePath}/unInsertData-forward.txt`, JSON.stringify(obj))
+      // todo
+      try {
+        fs.appendFileSync(`${config.savePath}/unInsertData-forward.txt`, JSON.stringify(obj))
+      } catch (e) {
+        throw new Error('文件写入失败')
+      }
+
+      throw new Error(e)
     }
   }
 }

@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-27 14:13:59
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-14 14:06:57
+ * @LastEditTime: 2021-10-18 16:44:39
  */
 import { exportExcel, importExcel } from '../utils'
 const sqlite3 = require('sqlite3').verbose()
@@ -21,7 +21,7 @@ export default class SQLite {
         this.connection = new sqlite3.Database(this.form.connectString)
         resolve(this.connection)
       } else {
-        return reject(new Error(`${this.form.connectString} is not exist`))
+        return reject(new Error(`${this.form.connectString}链接失败`))
       }
     })
   }
@@ -30,6 +30,7 @@ export default class SQLite {
     return new Promise((resolve, reject) => {
       this.connection.all(querySql, (err, result) => {
         if (err) {
+          console.error(err)
           reject(err)
           return
         }
@@ -39,21 +40,27 @@ export default class SQLite {
   }
 
   async getTableName () {
-    const res = await this.query('SELECT name FROM sqlite_master where type="table" order by name')
-    const result = []
+    try {
+      const res = await this.query('SELECT name FROM sqlite_master where type="table" order by name')
+      const result = []
 
-    res.forEach(item => {
-      result.push(item.name)
-    })
+      res.forEach(item => {
+        result.push(item.name)
+      })
 
-    return result
+      return result
+    } catch (err) {
+      console.error(err)
+      throw new Error(`获取${this.form.connectString}表名失败`)
+    }
   }
 
   getColum (tabledName) {
     return new Promise((resolve, reject) => {
       this.connection.all(`PRAGMA table_info(${tabledName})`, (err, res) => {
         if (err) {
-          reject(err)
+          console.error(err)
+          reject(new Error(`获取${tabledName}列名失败`))
         }
         const arr = []
 
@@ -75,7 +82,8 @@ export default class SQLite {
     return new Promise((resolve, reject) => {
       this.connection.all(`INSERT INTO ${tabledName} (${keys.join(',')}) VALUES (${data.join(',')})`, (err, res) => {
         if (err) {
-          reject(err)
+          console.error(err)
+          reject(new Error(`${tabledName}添加数据失败`))
         }
         resolve(res)
       })
@@ -98,7 +106,8 @@ export default class SQLite {
     return new Promise((resolve, reject) => {
       this.connection.all(sql, (err, res) => {
         if (err) {
-          reject(err)
+          console.error(err)
+          reject(new Error(`${tabledName}批量添加数据失败`))
         }
         resolve(res)
       })
@@ -109,7 +118,8 @@ export default class SQLite {
     return new Promise((resolve, reject) => {
       this.connection.all(`SELECT * FROM ${tabledName}`, (err, res) => {
         if (err) {
-          reject(err)
+          console.error(err)
+          reject(new Error(`${tabledName}获取数据失败`))
         }
         resolve(res)
       })
@@ -124,9 +134,10 @@ export default class SQLite {
  */
   selectLimit (tabledName, pageNum, pageSize) {
     return new Promise((resolve, reject) => {
-      this.connection.all(`SELECT * FROM ${tabledName} LIMIT ${(pageNum - 1) * pageSize}, ${pageNum * pageSize}`, (err, res) => {
+      this.connection.all(`SELECT * FROM ${tabledName} LIMIT ${(pageNum - 1) * pageSize}, ${pageSize}`, (err, res) => {
         if (err) {
-          reject(err)
+          console.error(err)
+          reject(new Error(`${tabledName}分页获取数据失败`))
         }
         resolve(res)
       })
@@ -138,7 +149,8 @@ export default class SQLite {
     return new Promise((resolve, reject) => {
       this.connection.close((err) => {
         if (err) {
-          reject(err)
+          console.error(err)
+          reject(new Error(`${this.form.type}断开链接失败`))
         }
         resolve()
         this.connection = null

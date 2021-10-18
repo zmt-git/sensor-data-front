@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-26 11:56:42
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-15 09:38:48
+ * @LastEditTime: 2021-10-18 16:07:46
 -->
 <template>
   <div class="d-layout">
@@ -138,6 +138,7 @@ export default {
   &-content{
     flex: 1;
     height: 100%;
+    overflow: auto;
   }
 }
 </style>

@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-26 11:59:49
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-14 11:39:00
+ * @LastEditTime: 2021-10-18 16:09:25
 -->
 
 <template>
@@ -107,6 +107,7 @@ export default {
   display: flex;
   flex-direction: column;
   -webkit-app-region: drag;
+  overflow: auto;
   &-section{
     display: flex;
     flex: 1;

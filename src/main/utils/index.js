@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-10-12 08:52:20
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-15 09:04:10
+ * @LastEditTime: 2021-10-18 14:55:15
  */
 import { config } from '../config'
 import { openFileSync } from './file'
@@ -19,7 +19,7 @@ const xlsx = require('node-xlsx')
  * @param {String} sheetName
  * @return {String} 导出文件地址
  */
-export function exportExcel (conf) {
+export async function exportExcel (conf) {
   try {
     const result = nodeExcel.execute(conf)
 
@@ -31,7 +31,8 @@ export function exportExcel (conf) {
 
     return `${config.savePath}/${conf.name}`
   } catch (err) {
-    throw new Error(err)
+    console.error(err)
+    throw new Error(`导出文件目录${config.savePath}路径不存在`)
   }
 }
 
@@ -40,26 +41,23 @@ export function exportExcel (conf) {
  * @return { Object } {data: Object, files: Array }
  */
 export function importExcel () {
-  try {
-    const filePath = openFileSync()
-    if (!filePath) {
-      return
-    }
+  const filePath = openFileSync()
 
-    if (filePath && path.extname(filePath[0]) !== '.xlsx') {
-      throw new Error('文件类型不是xlsx')
-    }
-
-    const workSheetsFromBuffer = xlsx.parse(filePath[0])
-
-    if (!workSheetsFromBuffer.length) {
-      return Promise.reject(new Error('未读取到数据源'))
-    }
-
-    const fields = workSheetsFromBuffer[0].data.shift()
-
-    return { data: workSheetsFromBuffer[0].data, fields: fields }
-  } catch (err) {
-    throw new Error(err)
+  if (!filePath) {
+    return
   }
+
+  if (filePath && path.extname(filePath[0]) !== '.xlsx') {
+    throw new Error('文件类型不是xlsx')
+  }
+
+  const workSheetsFromBuffer = xlsx.parse(filePath[0])
+
+  if (!workSheetsFromBuffer.length) {
+    return Promise.reject(new Error('未读取到数据源'))
+  }
+
+  const fields = workSheetsFromBuffer[0].data.shift()
+
+  return { data: workSheetsFromBuffer[0].data, fields: fields }
 }

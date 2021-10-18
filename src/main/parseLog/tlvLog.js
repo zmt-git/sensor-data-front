@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-10-08 13:48:20
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-09 11:39:46
+ * @LastEditTime: 2021-10-18 11:13:05
  */
 import { getDate, getDeviceCode } from '../utils/parse'
 // {
@@ -19,13 +19,17 @@ const template = {
 }
 export function parseTlvLog (string) {
   template.time = new Date(getDate(string))
+
   template.deviceCode = getDeviceCode(string)
 
   const body = string.split('：').pop().slice(10, -8)
 
   // column
   template.column.id = body.slice(0, 13)
+
   template.column.mode_num = body.slice(15, 16)
+
   template.column.sig_num = body.slice(20, 21)
+
   return JSON.stringify(template)
 }

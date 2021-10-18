@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-27 13:55:21
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-14 11:27:25
+ * @LastEditTime: 2021-10-18 16:44:49
  */
 import { exportExcel, importExcel } from '../utils'
 
@@ -23,7 +23,8 @@ export default class Oracle {
         connectString: `${this.form.host}:${this.form.port || 1521}/${this.form.connectString}`
       }, (err, connection) => {
         if (err) {
-          reject(err)
+          console.error(err)
+          reject(new Error('链接数据库失败'))
           return
         }
         this.connection = connection
@@ -36,6 +37,8 @@ export default class Oracle {
     return new Promise((resolve, reject) => {
       this.connection.execute(querySql, (err, result) => {
         if (err) {
+          console.error(err)
+
           reject(err)
           return
         }
@@ -45,22 +48,28 @@ export default class Oracle {
   }
 
   async getTableName () {
-    const res = await this.query('select table_name from user_tables')
+    try {
+      const res = await this.query('select table_name from user_tables')
 
-    const result = []
-    // todo
-    res.forEach(item => {
-      result.push(item.Tables_in_test)
-    })
+      const result = []
+      // todo
+      res.forEach(item => {
+        result.push(item.Tables_in_test)
+      })
 
-    return result
+      return result
+    } catch (err) {
+      console.error(err)
+      throw new Error(`获取${this.form.connectString}表名失败`)
+    }
   }
 
   getColum (tabledName) {
     return new Promise((resolve, reject) => {
       this.connection.execute(`select * from user_tab_columns where Table_Name=${tabledName}`, (err, res) => {
         if (err) {
-          reject(err)
+          console.error(err)
+          reject(new Error(`获取${tabledName}列名失败`))
         }
 
         const arr = []
@@ -83,7 +92,8 @@ export default class Oracle {
     return new Promise((resolve, reject) => {
       this.connection.execute(`INSERT INTO ${tabledName} (${keys.join(',')}) VALUES (${data.join(',')})`, (err, res) => {
         if (err) {
-          reject(err)
+          console.error(err)
+          reject(new Error(`${tabledName}添加数据失败`))
         }
         resolve(res)
       })
@@ -95,7 +105,8 @@ export default class Oracle {
     return new Promise((resolve, reject) => {
       this.connection.execute(sql, [data], (err, res) => {
         if (err) {
-          reject(err)
+          console.error(err)
+          reject(new Error(`${tabledName}批量添加数据失败`))
         }
         resolve(res)
       })
@@ -106,7 +117,8 @@ export default class Oracle {
     return new Promise((resolve, reject) => {
       this.connection.execute(`SELECT * FROM ${tabledName}`, (err, res) => {
         if (err) {
-          reject(err)
+          console.error(err)
+          reject(new Error(`${tabledName}获取数据失败`))
         }
         resolve(res)
       })
@@ -115,9 +127,10 @@ export default class Oracle {
 
   selectLimit (tabledName, pageNum, pageSize) {
     return new Promise((resolve, reject) => {
-      this.connection.execute(`SELECT * FROM ${tabledName} LIMIT ${(pageNum - 1) * pageSize}, ${pageNum * pageSize}`, (err, res) => {
+      this.connection.execute(`SELECT * FROM ${tabledName} LIMIT ${(pageNum - 1) * pageSize}, ${pageSize}`, (err, res) => {
         if (err) {
-          reject(err)
+          console.error(err)
+          reject(new Error(`${tabledName}分页获取数据失败`))
         }
         resolve(res)
       })
@@ -129,7 +142,8 @@ export default class Oracle {
     return new Promise((resolve, reject) => {
       this.connection.close((err) => {
         if (err) {
-          reject(err)
+          console.error(err)
+          reject(new Error(`${this.form.type}断开链接失败`))
         }
         resolve()
         this.connection = null

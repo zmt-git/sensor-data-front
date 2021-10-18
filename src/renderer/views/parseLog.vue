@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-10-08 09:18:58
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-15 09:21:55
+ * @LastEditTime: 2021-10-18 16:09:39
 -->
 <template>
   <div class="d-parse-log center">
@@ -167,6 +167,7 @@ export default {
 .d-parse-log{
   width: 100%;
   height: 100%;
+  overflow: auto;
   &-inner{
     &_title{
       text-align:center;
