@@ -2,7 +2,6 @@
 
 import { app, protocol, BrowserWindow } from 'electron'
 import { registerIpcMain } from './main/ipc'
-
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 // import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 const isDevelopment = process.env.NODE_ENV !== 'production'
