@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-10-09 15:21:49
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-18 16:58:57
+ * @LastEditTime: 2021-10-19 10:42:35
  */
 /**
  * 1.链接数据库
@@ -12,7 +12,7 @@
  * 4.目标数据库入库
  */
 import { connect } from '../database'
-import { config } from '../config'
+import { config } from '../ipc/storage'
 const fs = require('fs')
 export default class ForwardsDatabase {
   constructor (source, target) {

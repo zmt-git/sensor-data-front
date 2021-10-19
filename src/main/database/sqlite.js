@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-27 14:13:59
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-18 17:24:56
+ * @LastEditTime: 2021-10-19 11:14:11
  */
 import { exportExcel, importExcel } from '../utils'
 const sqlite3 = require('sqlite3').verbose()
@@ -32,6 +32,24 @@ export default class SQLite {
         if (err) {
           console.error(err)
           reject(err)
+          return
+        }
+        resolve(result)
+      })
+    })
+  }
+
+  update (tableName, keys, data, whereKey = 'id') {
+    return new Promise((resolve, reject) => {
+      const keysStr = keys.join(' = ?,') + ' = ?'
+      this.connection.query(`UPDATE ${tableName} SET ${keysStr} WHERE ${whereKey} = ?`, data, (err, result) => {
+        if (err) {
+          console.error(err)
+          if (err.code === 'ER_PARSE_ERROR') {
+            reject(new Error('语法错误'))
+          } else {
+            reject(err)
+          }
           return
         }
         resolve(result)

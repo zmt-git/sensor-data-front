@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-10-08 13:47:44
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-18 15:33:19
+ * @LastEditTime: 2021-10-19 11:08:58
  */
 // 选取目录 -> 获取目录.log文件 -> 读取文件
 // 读取文件 -> 按行读取 -> 解析
@@ -11,7 +11,7 @@
 import { parseJsonLog } from './jsonLog'
 import { parseStringLog } from './stringLog'
 import { parseTlvLog } from './tlvLog'
-import { config } from '../config'
+import { config } from '../ipc/storage'
 import { isProtocolJson, isProtocolString, isProtocolTlv } from '../utils/parse'
 import { connect } from '../database'
 
@@ -45,7 +45,7 @@ export default class ParseLog {
 
       this.filePaths = await this.getFilePath()
 
-      this.readFile()
+      await this.readFile()
     } catch (e) {
       throw new Error(e)
     }
@@ -76,43 +76,47 @@ export default class ParseLog {
     }
   }
 
-  readFile (cacheStringArr = []) {
-    this.currentFile = this.filePaths.shift()
+  async readFile () {
+    try {
+      this.currentFile = this.filePaths.shift()
 
-    if (!this.currentFile) {
-      return
+      const content = await this.readFileContent(this.currentFile)
+
+      await this.resolveData(content)
+
+      if (this.filePaths.length > 0) {
+        await this.readFile()
+      }
+    } catch (err) {
+      throw new Error(err)
     }
+  }
 
-    const stream = fs.createReadStream(this.currentFile)
+  readFileContent (file) {
+    return new Promise((resolve, reject) => {
+      const arr = []
+      const stream = fs.createReadStream(file)
 
-    const rl = readline.createInterface({
-      input: stream
-    })
+      const rl = readline.createInterface({
+        input: stream
+      })
 
-    rl.on('line', async (data) => {
-      try {
-        const stringObj = this.parseProtocol(data)
+      rl.on('line', (data) => {
+        const parseString = this.parseProtocol(data)
+        arr.push(parseString)
+      })
 
-        stringObj && cacheStringArr.push(stringObj)
+      stream.on('error', (err) => {
+        console.error(err)
+        reject(new Error('读取文件内容出错啦'))
+        stream.close()
+      })
 
-        if (cacheStringArr.length > 100) {
-          await this.resolveData(cacheStringArr, rl)
-          cacheStringArr = []
-          rl.pause()
-        }
-      } catch (e) {
-        throw new Error(e)
-      }
-    })
-
-    stream.on('end', async () => {
-      try {
-        await this.resolveData(cacheStringArr, rl)
+      stream.on('end', () => {
+        resolve(arr)
         rl.close()
-        this.readFile()
-      } catch (err) {
-        throw new Error(err)
-      }
+        stream.destroy()
+      })
     })
   }
 
@@ -130,22 +134,19 @@ export default class ParseLog {
     }
   }
 
-  async resolveData (cacheStringArr, rl) {
-    if (cacheStringArr.length === 0) {
-      rl.resume()
+  async resolveData (jsonStringArr) {
+    if (jsonStringArr.length === 0) {
       return
     }
     try {
       if (this.base.type === 1) {
-        this.exportTxt(cacheStringArr)
+        this.exportTxt(jsonStringArr)
       } else if (this.base.type === 0) {
-        await this.intoDatabase(cacheStringArr)
+        await this.intoDatabase(jsonStringArr)
       }
     } catch (err) {
       throw new Error(err)
     }
-
-    rl.resume()
   }
 
   exportTxt (jsonStringArr) {
@@ -162,12 +163,13 @@ export default class ParseLog {
     } catch (e) {
       console.error(e)
 
-      fs.appendFileSync(`/${config.logFileName}.txt`, `\n${content}`)
+      fs.appendFileSync(`/${path.join(__dirname, config.logFileName)}.txt`, `\n${content}`)
 
       throw new Error(`导出文件${config.savePath}路径不存在, 请查看/${path.join(__dirname, config.logFileName)}.txt文件`)
     }
   }
 
+  // todo 批量插入 改为 更新数据
   async intoDatabase (jsonStringArr) {
     if (!jsonStringArr || !Array.isArray(jsonStringArr) || jsonStringArr.length === 0) return
     try {
@@ -186,10 +188,16 @@ export default class ParseLog {
           arr.push(res.column[item])
         })
 
+        arr.push(res.deviceCode)
+
         values.push(arr)
       })
 
-      await this.sql.insertBatch(this.databaseForm.tableName, keys, values)
+      while (values.length > 0) {
+        const res = values.pop()
+
+        await this.sql.update(this.databaseForm.tableName, keys, res, 'code')
+      }
     } catch (err) {
       const content = jsonStringArr.join('\n')
       try {
@@ -200,7 +208,7 @@ export default class ParseLog {
           fs.appendFileSync(`${config.savePath}/unInsertData-log.txt`, content)
         }
       } catch (err) {
-        fs.appendFileSync('/unInsertData-log.txt', content)
+        fs.appendFileSync(`/${path.join(__dirname, 'unInsertData-log')}.txt`, content)
 
         throw new Error(`写入文件${config.savePath}路径不存在, 请查看/${path.join(__dirname, 'unInsertData-log')}.txt文件`)
       }

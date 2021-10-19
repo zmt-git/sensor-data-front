@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-10-08 10:12:45
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-18 14:51:06
+ * @LastEditTime: 2021-10-19 09:55:49
  */
 import { ipcMain } from 'electron'
 
@@ -15,7 +15,7 @@ handlers.keys().forEach(handler => {
   modules[handler.replace(/(\.\/|\.js)/g, '')] = handlers(handler).default
 })
 
-export function registerIpcMain (mainWindow) {
+export function registerIpcMain (mainWindow, app) {
   ipcMain.on('rendererProcess', async (event, obj) => {
     const sign = obj.sign
 

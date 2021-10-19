@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-26 11:56:42
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-18 16:07:46
+ * @LastEditTime: 2021-10-19 11:10:24
 -->
 <template>
   <div class="d-layout">
@@ -21,7 +21,7 @@
         <router-view></router-view>
       </main>
       <transition name="el-fade-in-linear">
-        <d-setting v-show="drawer" :visible.sync='drawer'></d-setting>
+        <d-setting v-show="drawer" :visible.sync='drawer' :config='config' @changeSavePath='changeSavePath'></d-setting>
       </transition>
     </section>
   </div>
@@ -35,6 +35,7 @@ import DHeader from '@/components/Header.vue'
 import DSetting from '../components/Setting.vue'
 import { ipcSend } from '@/ipc'
 import { ipcRenderer } from 'electron'
+import { setStorage, getStorage } from '@/util/cache/cacheConfig'
 export default {
   name: 'd-layout',
 
@@ -53,17 +54,31 @@ export default {
       iconValue: '',
       navList: navList,
       iconList: iconList,
-      drawer: false
+      drawer: false,
+      config: { savePath: '', logFileName: '' }
     }
   },
 
-  created () {
-    ipcRenderer.once('created', this.changeSize)
+  async created () {
+    ipcRenderer.once('created', this.ready)
 
-    this.changeSize()
+    await this.changeSize()
+
+    await this.getStorage()
   },
 
   methods: {
+    async changeSavePath (savePath) {
+      savePath && setStorage('savePath', savePath)
+
+      await this.getStorage()
+    },
+
+    async ready () {
+      await this.changeSize()
+      await this.getStorage()
+    },
+
     async changeSize () {
       try {
         await ipcSend({ sign: 'window/changeSize', params: { type: 1 } })
@@ -71,6 +86,20 @@ export default {
         console.error(e)
       }
     },
+    async getStorage () {
+      const savePath = getStorage('savePath')
+
+      const logFileName = getStorage('logFileName')
+
+      const res = await ipcSend({ sign: 'storage/setStorage', params: { savePath, logFileName } })
+
+      setStorage('savePath', res.savePath)
+
+      setStorage('logFileName', res.logFileName)
+
+      this.config = res
+    },
+
     // 侧边栏切换
     async setValue (e) {
       if (this.currentDataBase === e.id) return

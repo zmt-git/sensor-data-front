@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-10-08 09:18:58
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-18 16:09:39
+ * @LastEditTime: 2021-10-19 10:46:14
 -->
 <template>
   <div class="d-parse-log center">
@@ -57,7 +57,7 @@
 <script>
 import { navList } from '@/common/aside'
 import { ipcSend } from '@/ipc'
-import { config } from '#/config/index'
+import { getStorage } from '@/util/cache/cacheConfig'
 import FrowardForm from '../components/FrowardForm.vue'
 export default {
   components: { FrowardForm },
@@ -83,7 +83,7 @@ export default {
       form: {
         importDirectory: '',
         type: 1,
-        exportDirectory: `${config.savePath}/${config.logFileName}.txt`
+        exportDirectory: `${getStorage('savePath')}/${getStorage('logFileName')}.txt`
       },
       databaseForm: {
         databaseType: 'MySQL',

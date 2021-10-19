@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-27 13:33:58
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-18 17:26:08
+ * @LastEditTime: 2021-10-19 11:14:51
  */
 import { exportExcel, importExcel } from '../utils'
 
@@ -48,6 +48,24 @@ export default class MySQL {
   query (querySql) {
     return new Promise((resolve, reject) => {
       this.connection.query(querySql, (err, result) => {
+        if (err) {
+          console.error(err)
+          if (err.code === 'ER_PARSE_ERROR') {
+            reject(new Error('语法错误'))
+          } else {
+            reject(err)
+          }
+          return
+        }
+        resolve(result)
+      })
+    })
+  }
+
+  update (tableName, keys, data, whereKey = 'id') {
+    return new Promise((resolve, reject) => {
+      const keysStr = keys.join(' = ?,') + ' = ?'
+      this.connection.query(`UPDATE ${tableName} SET ${keysStr} WHERE ${whereKey} = ?`, data, (err, result) => {
         if (err) {
           console.error(err)
           if (err.code === 'ER_PARSE_ERROR') {

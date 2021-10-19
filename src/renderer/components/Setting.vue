@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-10-12 15:28:36
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-14 10:37:59
+ * @LastEditTime: 2021-10-19 10:25:39
 -->
 <template>
   <div class="d-setting" @click.self='close'>
@@ -12,7 +12,7 @@
         <div class="d-setting-inner-item">
           <h4 class="title">文件</h4>
           <div class="d-setting-inner-item-save">
-            <p class="d-setting-inner-item-save-title"><span>保存位置</span> <el-button size='mini' disabled @click="onChangeSavePath">更改</el-button></p>
+            <p class="d-setting-inner-item-save-title"><span>保存位置</span> <el-button size='mini' @click="onChangeSavePath">更改</el-button></p>
             <p class="d-setting-inner-item-save-value">{{config.savePath}}</p>
           </div>
           <el-divider></el-divider>
@@ -23,7 +23,8 @@
 </template>
 
 <script>
-import { config } from '~/main/config'
+import { ipcSend } from '@/ipc'
+
 export default {
   name: 'd-setting',
 
@@ -31,12 +32,13 @@ export default {
     visible: {
       type: Boolean,
       default: false
-    }
-  },
-
-  data () {
-    return {
-      config
+    },
+    config: {
+      type: Object,
+      default: () => ({
+        savePath: '',
+        logFileName: ''
+      })
     }
   },
 
@@ -45,12 +47,13 @@ export default {
       this.$emit('update:visible', false)
     },
 
-    onChangeSavePath () {
-
-    },
-
-    setSavePath (res) {
-      this.config.savePath = res
+    async onChangeSavePath () {
+      try {
+        const res = await ipcSend({ sign: 'dialog/openFile', params: { properties: ['openDirectory'] } })
+        this.$emit('changeSavePath', res.pop())
+      } catch (e) {
+        console.error(e)
+      }
     }
   }
 }

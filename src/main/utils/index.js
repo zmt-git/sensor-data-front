@@ -3,9 +3,9 @@
  * @Author: zmt
  * @Date: 2021-10-12 08:52:20
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-18 14:55:15
+ * @LastEditTime: 2021-10-19 10:42:16
  */
-import { config } from '../config'
+import { config } from '../ipc/storage'
 import { openFileSync } from './file'
 const fs = require('fs')
 const path = require('path')
