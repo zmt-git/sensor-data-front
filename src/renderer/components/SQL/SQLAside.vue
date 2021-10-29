@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-29 09:00:03
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-08 11:55:12
+ * @LastEditTime: 2021-10-29 15:30:34
 -->
 <template>
   <ul class="d-sql-aside" id="sqlAside">
@@ -75,7 +75,7 @@ export default {
     display: block;
     width: 9px;
     height: 100%;
-    cursor: e-resize;
+    cursor: col-resize;
   }
 }
 .active{

@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-27 14:13:59
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-19 11:14:11
+ * @LastEditTime: 2021-10-29 15:25:51
  */
 import { exportExcel, importExcel } from '../utils'
 const sqlite3 = require('sqlite3').verbose()
@@ -42,7 +42,7 @@ export default class SQLite {
   update (tableName, keys, data, whereKey = 'id') {
     return new Promise((resolve, reject) => {
       const keysStr = keys.join(' = ?,') + ' = ?'
-      this.connection.query(`UPDATE ${tableName} SET ${keysStr} WHERE ${whereKey} = ?`, data, (err, result) => {
+      this.connection.all(`UPDATE ${tableName} SET ${keysStr} WHERE ${whereKey} = ?`, data, (err, result) => {
         if (err) {
           console.error(err)
           if (err.code === 'ER_PARSE_ERROR') {
@@ -165,12 +165,12 @@ export default class SQLite {
   // todo
   getRows (tabledName) {
     return new Promise((resolve, reject) => {
-      this.connection.query(`SELECT COUNT(1) AS COUNT FROM ${tabledName}`, (err, res) => {
+      this.connection.all(`SELECT COUNT(*) AS COUNT FROM ${tabledName}`, (err, res) => {
         if (err) {
           console.error(err)
           reject(new Error(`${tabledName}获取总条数数据失败`))
         }
-        resolve(res.COUNT)
+        resolve(res[0].COUNT)
       })
     })
   }

@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-29 09:02:28
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-18 17:28:14
+ * @LastEditTime: 2021-10-29 15:29:36
 -->
 <template>
   <div class="d-sql" @mouseup="onCancelMove">
@@ -113,12 +113,14 @@ export default {
     // ==========改变侧边栏大小 移动开始==========
     onStartMove (e) {
       if (e.target.id === 'resize' && e.button === 0) {
+        document.body.style.cursor = 'col-resize'
         this.$refs.section.addEventListener('mousemove', this.setElementWidth)
       }
     },
 
     // ==========改变侧边栏大小 移动结束==========
     onCancelMove (e) {
+      document.body.style.cursor = 'auto'
       this.$refs.section.removeEventListener('mousemove', this.setElementWidth)
     },
 
