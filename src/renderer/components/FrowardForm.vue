@@ -3,11 +3,11 @@
  * @Author: zmt
  * @Date: 2021-10-13 09:11:56
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-14 11:20:44
+ * @LastEditTime: 2021-11-01 17:14:02
 -->
 <template>
-  <el-form :model='form'>
-    <el-form-item>
+  <el-form :model='form' :rules="rules" ref='form'>
+    <el-form-item prop="databaseType">
       <el-select
         class="el-input__inner-radius"
         placeholder="源数据库类型"
@@ -54,7 +54,7 @@
         :style='style'
         placeholder='密码'></el-input>
     </el-form-item>
-    <el-form-item>
+    <el-form-item prop="connectString">
       <div @click='openFileDB'>
         <el-input
           ref='1'
@@ -64,7 +64,7 @@
           placeholder="链接字符串"></el-input>
       </div>
     </el-form-item>
-    <el-form-item>
+    <el-form-item prop="tableName">
       <el-input
         class="el-input__inner-radius"
         v-model="form.tableName "
@@ -83,6 +83,10 @@ export default {
 
   props: {
     form: {
+      type: Object,
+      default: () => {}
+    },
+    rules: {
       type: Object,
       default: () => {}
     }

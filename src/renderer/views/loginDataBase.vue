@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-26 16:28:18
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-18 16:09:32
+ * @LastEditTime: 2021-11-01 17:01:37
 -->
 <template>
   <div class="login-data-base" v-loading='loading'>
@@ -97,13 +97,19 @@ export default {
   data () {
     return {
       loading: false,
-      rules: {},
+      rules: {
+        host: [{ required: true, message: '请输入主机' }],
+        port: [{ required: true, message: '请输入端口' }],
+        user: [{ required: true, message: '请输入用户名' }],
+        password: [{ required: true, message: '请输入密码' }],
+        connectString: [{ required: true, message: '请输入链接字符串' }]
+      },
       ruleForm: {
         host: '',
         port: '',
-        user: 'root',
-        password: '123456789',
-        connectString: 'test'
+        user: '',
+        password: '',
+        connectString: ''
       },
       style: {
         width: '300px'
@@ -113,16 +119,20 @@ export default {
 
   methods: {
     // 链接数据库
-    async submitForm () {
-      this.loading = true
-      try {
-        await ipcSend({ sign: 'database/connect', params: { type: this.currentDataBase, form: this.ruleForm } })
-        await this.$store.dispatch('actionSqlIsLogin', { type: this.currentDataBase, value: true })
-        await this.$router.push({ path: '/querySQL', query: { type: this.currentDataBase } })
-      } catch (e) {
-        console.error(e)
-      }
-      this.loading = false
+    submitForm () {
+      this.$refs.ruleForm.validate(async vali => {
+        if (vali) {
+          this.loading = true
+          try {
+            await ipcSend({ sign: 'database/connect', params: { type: this.currentDataBase, form: this.ruleForm } })
+            await this.$store.dispatch('actionSqlIsLogin', { type: this.currentDataBase, value: true })
+            await this.$router.push({ path: '/querySQL', query: { type: this.currentDataBase } })
+          } catch (e) {
+            console.error(e)
+          }
+          this.loading = false
+        }
+      })
     },
 
     async openFileDB () {

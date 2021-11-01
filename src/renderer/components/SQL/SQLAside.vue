@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-29 09:00:03
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-29 15:30:34
+ * @LastEditTime: 2021-11-01 16:53:49
 -->
 <template>
   <ul class="d-sql-aside" id="sqlAside">
@@ -11,7 +11,7 @@
       <base-svg-icon iconName="icon-biaoge" font-size="14px"></base-svg-icon>
       <span class="d-sql-aside-li__name">{{item}}</span>
       </li>
-    <div class="d-sql-aside-resize" id="resize"></div>
+    <div class="d-sql-aside-resize" id="resize">::</div>
   </ul>
 </template>
 
@@ -73,9 +73,13 @@ export default {
     top: 0;
     content: '';
     display: block;
-    width: 9px;
+    width: 5px;
     height: 100%;
     cursor: col-resize;
+    background-color: #90939917;
+    display: flex;
+    align-items: center;
+    color: #9093997a;
   }
 }
 .active{

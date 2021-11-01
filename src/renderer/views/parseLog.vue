@@ -3,14 +3,14 @@
  * @Author: zmt
  * @Date: 2021-10-08 09:18:58
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-19 10:46:14
+ * @LastEditTime: 2021-11-01 17:23:46
 -->
 <template>
   <div class="d-parse-log center">
     <div class="d-parse-log-inner">
       <h3 class="d-parse-log-inner_title">日志解析</h3>
-      <el-form :model='form'>
-        <el-form-item>
+      <el-form :model='form' :rules="rules2" ref="form">
+        <el-form-item prop='importDirectory'>
           <div @click='openDirectory'>
           <el-input
             ref="importDirectory"
@@ -22,7 +22,7 @@
             ></el-input>
             </div>
         </el-form-item>
-        <el-form-item>
+        <el-form-item prop='type'>
           <el-select
             class="el-input__inner-radius"
             placeholder="导出类型"
@@ -31,7 +31,7 @@
             <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item v-if="isExcel">
+        <el-form-item v-if="isExcel" prop='exportDirectory'>
           <div @click='openFile'>
             <el-input
               ref="exportDirectory"
@@ -44,7 +44,7 @@
           </div>
         </el-form-item>
         <template v-else>
-          <froward-form :form='databaseForm'></froward-form>
+          <froward-form ref='form1' :form='databaseForm' :rules='rules'></froward-form>
         </template>
         <el-form-item>
           <el-button :loading='loading' type="primary" @click="submitForm" class="width-100">{{btnName}}</el-button>
@@ -80,19 +80,33 @@ export default {
   data () {
     return {
       loading: false,
+      rules2: {
+        importDirectory: [{ required: true, message: '请选择导入目录' }],
+        type: [{ required: true, message: '请选择导出方式' }],
+        exportDirectory: [{ required: true, message: '请导出文件' }]
+      },
       form: {
         importDirectory: '',
         type: 1,
         exportDirectory: `${getStorage('savePath')}/${getStorage('logFileName')}.txt`
       },
+      rules: {
+        databaseType: [{ required: true, message: '请选择数据库类型' }],
+        host: [{ required: true, message: '请输入主机' }],
+        port: [{ required: true, message: '请输入端口' }],
+        user: [{ required: true, message: '请输入用户名' }],
+        password: [{ required: true, message: '请输入密码' }],
+        connectString: [{ required: true, message: '请输入链接字符串' }],
+        tableName: [{ required: true, message: '请输入表名称' }]
+      },
       databaseForm: {
         databaseType: 'MySQL',
-        host: 'localhost',
-        port: '3306',
-        user: 'root',
-        password: '123456789',
-        connectString: 'test',
-        tableName: 'test'
+        host: '',
+        port: '',
+        user: '',
+        password: '',
+        connectString: '',
+        tableName: ''
       },
       options: [
         { value: 0, label: '入库' },
@@ -129,7 +143,23 @@ export default {
       this.$refs.importDirectory.blur()
     },
 
-    async submitForm () {
+    submitForm () {
+      this.$refs.form.validate(async v => {
+        if (v) {
+          if (this.isExcel) {
+            await this.parseFn()
+          } else {
+            this.$refs.form1.$refs.form.validate(async v => {
+              if (v) {
+                await this.parseFn()
+              }
+            })
+          }
+        }
+      })
+    },
+
+    async parseFn () {
       this.loading = true
       try {
         await ipcSend({ sign: 'parse/parse', params: { base: this.form, database: this.databaseForm } })
