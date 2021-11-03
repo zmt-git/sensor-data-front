@@ -3,9 +3,10 @@
  * @Author: zmt
  * @Date: 2021-10-19 09:43:04
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-19 09:44:34
+ * @LastEditTime: 2021-11-03 13:47:35
  */
 export function setStorage (key, value) {
+  if (key === undefined) return
   localStorage.setItem(key, value)
 }
 

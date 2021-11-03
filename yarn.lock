@@ -7818,10 +7818,10 @@ ora@^3.4.0:
     strip-ansi "^5.2.0"
     wcwidth "^1.0.1"
 
-oracledb@5.2.0:
-  version "5.2.0"
-  resolved "https://registry.nlark.com/oracledb/download/oracledb-5.2.0.tgz#c5774a38508e2ebd4f899500dfc35daa03b00481"
-  integrity sha1-xXdKOFCOLr1PiZUA38NdqgOwBIE=
+oracledb@^5.3.0:
+  version "5.3.0"
+  resolved "https://registry.npmmirror.com/oracledb/download/oracledb-5.3.0.tgz#a15e6cd16757d8711a2c006a28bd7ecd3b8466f7"
+  integrity sha1-oV5s0WdX2HEaLABqKL1+zTuEZvc=
 
 original@^1.0.0:
   version "1.0.2"

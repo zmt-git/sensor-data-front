@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-10-12 15:28:36
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-19 10:25:39
+ * @LastEditTime: 2021-11-03 14:15:46
 -->
 <template>
   <div class="d-setting" @click.self='close'>
@@ -12,7 +12,7 @@
         <div class="d-setting-inner-item">
           <h4 class="title">文件</h4>
           <div class="d-setting-inner-item-save">
-            <p class="d-setting-inner-item-save-title"><span>保存位置</span> <el-button size='mini' @click="onChangeSavePath">更改</el-button></p>
+            <p class="d-setting-inner-item-save-title"><span>保存位置</span> <el-button size='mini' @click="onChange('savePath')">更改</el-button></p>
             <p class="d-setting-inner-item-save-value">{{config.savePath}}</p>
           </div>
           <el-divider></el-divider>
@@ -47,10 +47,10 @@ export default {
       this.$emit('update:visible', false)
     },
 
-    async onChangeSavePath () {
+    async onChange (type) {
       try {
         const res = await ipcSend({ sign: 'dialog/openFile', params: { properties: ['openDirectory'] } })
-        this.$emit('changeSavePath', res.pop())
+        this.$emit('change', { type, result: res.pop() })
       } catch (e) {
         console.error(e)
       }

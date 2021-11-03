@@ -1,9 +1,12 @@
 'use strict'
 
-import { app, protocol, BrowserWindow } from 'electron'
+import { app, protocol, BrowserWindow, dialog } from 'electron'
 import { registerIpcMain } from './main/ipc'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 // import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
+
+const path = require('path')
+const oracle = require('oracledb')
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 // Scheme must be registered before the app is ready
@@ -39,6 +42,13 @@ async function createWindow () {
     createProtocol('app')
     // Load the index.html when not in development
     await mainWindow.loadURL('app://./index.html')
+  }
+
+  try {
+    oracle.initOracleClient({ libDir: path.join(__dirname, 'instantclient_19_12') })
+  } catch (err) {
+    dialog.showMessageBoxSync({ message: err.message, type: 'error' })
+    dialog.showMessageBoxSync({ message: path.join(__dirname, 'instantclient_19_12'), type: 'error' })
   }
 
   registerIpcMain(mainWindow)

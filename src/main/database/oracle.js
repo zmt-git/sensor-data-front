@@ -3,10 +3,10 @@
  * @Author: zmt
  * @Date: 2021-09-27 13:55:21
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-19 11:14:12
+ * @LastEditTime: 2021-11-03 16:45:52
  */
+import { dialog } from 'electron'
 import { exportExcel, importExcel } from '../utils'
-
 const oracle = require('oracledb')
 
 export default class Oracle {
@@ -23,8 +23,9 @@ export default class Oracle {
         connectString: `${this.form.host}:${this.form.port || 1521}/${this.form.connectString}`
       }, (err, connection) => {
         if (err) {
+          dialog.showMessageBoxSync({ message: err.message, type: 'error' })
           console.error(err)
-          reject(new Error('链接数据库失败'))
+          reject(err)
           return
         }
         this.connection = connection

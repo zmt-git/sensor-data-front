@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-26 11:56:42
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-19 11:10:24
+ * @LastEditTime: 2021-11-03 14:15:39
 -->
 <template>
   <div class="d-layout">
@@ -21,7 +21,7 @@
         <router-view></router-view>
       </main>
       <transition name="el-fade-in-linear">
-        <d-setting v-show="drawer" :visible.sync='drawer' :config='config' @changeSavePath='changeSavePath'></d-setting>
+        <d-setting v-show="drawer" :visible.sync='drawer' :config='config' @change='change'></d-setting>
       </transition>
     </section>
   </div>
@@ -68,8 +68,13 @@ export default {
   },
 
   methods: {
-    async changeSavePath (savePath) {
-      savePath && setStorage('savePath', savePath)
+    async change (arg) {
+      const { type, result } = arg
+      switch (type) {
+        case 'savePath' : result && setStorage('savePath', result)
+          break
+        default : result && setStorage()
+      }
 
       await this.getStorage()
     },
@@ -91,11 +96,15 @@ export default {
 
       const logFileName = getStorage('logFileName')
 
-      const res = await ipcSend({ sign: 'storage/setStorage', params: { savePath, logFileName } })
+      const oracleInstallPath = getStorage('oracleInstallPath')
+
+      const res = await ipcSend({ sign: 'storage/setStorage', params: { savePath, logFileName, oracleInstallPath } })
 
       setStorage('savePath', res.savePath)
 
       setStorage('logFileName', res.logFileName)
+
+      setStorage('oracleInstallPath', res.oracleInstallPath)
 
       this.config = res
     },
