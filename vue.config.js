@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-28 16:01:38
  * @LastEditors: zmt
- * @LastEditTime: 2021-11-03 16:47:59
+ * @LastEditTime: 2021-11-03 17:08:39
  */
 const CopyPlugin = require('copy-webpack-plugin')
 const path = require('path')
@@ -50,11 +50,6 @@ module.exports = {
           // Copy the binary Oracle DB driver to dist.
           from: path.resolve(__dirname, 'node_modules/oracledb/build'),
           to: '../../build/oracledb'
-        },
-        {
-          // Copy the binary Oracle DB driver to dist.
-          from: path.resolve(__dirname, 'src/oracle'),
-          to: 'instantclient_19_12'
         }
       ])
     ]

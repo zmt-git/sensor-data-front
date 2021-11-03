@@ -2,7 +2,7 @@
 node_modules
 /dist
 /build
-/src/oracle
+/public/instantclient_19_12
 
 # local env files
 .env.local

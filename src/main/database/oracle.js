@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-27 13:55:21
  * @LastEditors: zmt
- * @LastEditTime: 2021-11-03 16:45:52
+ * @LastEditTime: 2021-11-03 16:58:21
  */
 import { dialog } from 'electron'
 import { exportExcel, importExcel } from '../utils'
@@ -25,7 +25,7 @@ export default class Oracle {
         if (err) {
           dialog.showMessageBoxSync({ message: err.message, type: 'error' })
           console.error(err)
-          reject(err)
+          reject(new Error('连接数据库失败'))
           return
         }
         this.connection = connection
