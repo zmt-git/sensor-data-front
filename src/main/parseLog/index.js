@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-10-08 13:47:44
  * @LastEditors: zmt
- * @LastEditTime: 2021-11-05 09:19:52
+ * @LastEditTime: 2021-11-05 10:09:25
  */
 // 选取目录 -> 获取目录.log文件 -> 读取文件
 // 读取文件 -> 按行读取 -> 解析
@@ -37,6 +37,7 @@ export default class ParseLog {
     return fs.lstatSync(fileName).isFile()
   }
 
+  // 开始解析
   async parse () {
     try {
       if (this.base.type === 0) {
@@ -51,6 +52,7 @@ export default class ParseLog {
     }
   }
 
+  // 链接数据库
   async connect () {
     try {
       this.sql = await connect({
@@ -62,6 +64,7 @@ export default class ParseLog {
     }
   }
 
+  // 获取文件
   async getFilePath () {
     try {
       const arr = fs.readdirSync(this.base.importDirectory).map(fileName => {
@@ -76,6 +79,7 @@ export default class ParseLog {
     }
   }
 
+  // 读取文件
   async readFile () {
     try {
       this.currentFile = this.filePaths.shift()
@@ -92,6 +96,7 @@ export default class ParseLog {
     }
   }
 
+  // 逐行读取文件内容
   readFileContent (file) {
     return new Promise((resolve, reject) => {
       const arr = []
@@ -120,6 +125,7 @@ export default class ParseLog {
     })
   }
 
+  // 解析内容
   parseProtocol (string) {
     if (isProtocolJson(string)) {
       return parseJsonLog(string)
@@ -134,6 +140,7 @@ export default class ParseLog {
     }
   }
 
+  // 处理数据 入库 导出文件
   async resolveData (jsonStringArr) {
     if (jsonStringArr.length === 0) {
       return
@@ -149,6 +156,7 @@ export default class ParseLog {
     }
   }
 
+  // 导出为文件
   exportTxt (jsonStringArr) {
     const filename = this.base.exportDirectory ? this.base.exportDirectory : `${config.savePath}/${config.logFileName}.txt`
 
@@ -169,6 +177,7 @@ export default class ParseLog {
     }
   }
 
+  // 入库
   async intoDatabase (jsonStringArr) {
     if (!jsonStringArr || !Array.isArray(jsonStringArr) || jsonStringArr.length === 0) return
     try {

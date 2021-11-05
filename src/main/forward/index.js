@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-10-09 15:21:49
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-19 10:42:35
+ * @LastEditTime: 2021-11-05 10:17:25
  */
 /**
  * 1.链接数据库
@@ -27,6 +27,7 @@ export default class ForwardsDatabase {
     this.pageSize = 100
   }
 
+  // 链接数据库
   async connect () {
     try {
       if (this.sourceForm.databaseType === this.targetForm.databaseType && this.sourceForm.connectString === this.targetForm.connectString) {
@@ -45,6 +46,7 @@ export default class ForwardsDatabase {
     }
   }
 
+  // 开始转发
   async startForward () {
     try {
       this.sourceColumn = await this.sourceConnection.getColum(this.sourceForm.tableName)
@@ -64,6 +66,7 @@ export default class ForwardsDatabase {
     }
   }
 
+  // 判断字段是否相同
   isSame () {
     if (this.sourceColumn.length !== this.targetColumn.length) return false
 
@@ -77,6 +80,7 @@ export default class ForwardsDatabase {
     return true
   }
 
+  // 查询 插入数据
   async insertData () {
     const cacheArr = []
     try {
@@ -117,6 +121,7 @@ export default class ForwardsDatabase {
     }
   }
 
+  // 批量插入
   async insertBatchData (cacheArr) {
     try {
       await this.targetConnection.insertBatch(this.targetForm.tableName, this.targetColumn, cacheArr)
@@ -127,6 +132,7 @@ export default class ForwardsDatabase {
     }
   }
 
+  // 错误处理
   async handleUnInsertData () {
     if (this.unInsertData.length === 0) return
     try {

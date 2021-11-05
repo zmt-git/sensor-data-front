@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-27 14:13:59
  * @LastEditors: zmt
- * @LastEditTime: 2021-11-05 09:48:30
+ * @LastEditTime: 2021-11-05 10:16:01
  */
 import { exportExcel, importExcel } from '../utils'
 const sqlite3 = require('sqlite3').verbose()
@@ -15,6 +15,7 @@ export default class SQLite {
     this.form = form
   }
 
+  // 链接
   connect () {
     return new Promise((resolve, reject) => {
       if (fs.existsSync(this.form.connectString)) {
@@ -26,6 +27,7 @@ export default class SQLite {
     })
   }
 
+  // 自定义查询
   query (querySql) {
     return new Promise((resolve, reject) => {
       this.connection.all(querySql, (err, result) => {
@@ -39,6 +41,7 @@ export default class SQLite {
     })
   }
 
+  // 更新
   update (tableName, keys, data, whereKey = 'id') {
     return new Promise((resolve, reject) => {
       const keysStr = keys.join(' = ?,') + ' = ?'
@@ -57,6 +60,7 @@ export default class SQLite {
     })
   }
 
+  // 获取表名
   async getTableName () {
     try {
       const res = await this.query('SELECT name FROM sqlite_master where type="table" order by name')
@@ -73,6 +77,7 @@ export default class SQLite {
     }
   }
 
+  // 获取列名
   getColum (tabledName) {
     return new Promise((resolve, reject) => {
       this.connection.all(`PRAGMA table_info(${tabledName})`, (err, res) => {
@@ -132,6 +137,7 @@ export default class SQLite {
     })
   }
 
+  // 获取全部数据
   selectAll (tabledName) {
     return new Promise((resolve, reject) => {
       this.connection.all(`SELECT * FROM ${tabledName}`, (err, res) => {
@@ -162,7 +168,7 @@ export default class SQLite {
     })
   }
 
-  // todo
+  // 获取条数
   getRows (tabledName) {
     return new Promise((resolve, reject) => {
       this.connection.all(`SELECT COUNT(*) AS COUNT FROM ${tabledName}`, (err, res) => {

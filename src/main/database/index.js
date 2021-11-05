@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-28 09:56:26
  * @LastEditors: zmt
- * @LastEditTime: 2021-11-04 14:52:02
+ * @LastEditTime: 2021-11-05 10:12:49
  */
 import MySQL from './mysql'
 import Oracle from './oracle'
@@ -51,6 +51,7 @@ export async function query (params) {
   }
 }
 
+// 获取表名
 export async function getTableName (params) {
   try {
     const { type } = params
@@ -61,6 +62,7 @@ export async function getTableName (params) {
   }
 }
 
+// 获取表数据
 export async function getTableData (params) {
   try {
     const { type, tableName, pageNum, pageSize } = params

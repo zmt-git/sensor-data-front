@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-27 13:55:21
  * @LastEditors: zmt
- * @LastEditTime: 2021-11-05 09:41:36
+ * @LastEditTime: 2021-11-05 10:14:33
  */
 import { dialog } from 'electron'
 import { exportExcel, importExcel } from '../utils'
@@ -15,6 +15,7 @@ export default class Oracle {
     this.form = form
   }
 
+  // 链接
   connect () {
     return new Promise((resolve, reject) => {
       oracle.getConnection({
@@ -41,6 +42,7 @@ export default class Oracle {
     })
   }
 
+  // 自定义执行语句
   query (querySql) {
     return new Promise((resolve, reject) => {
       this.connection.execute(querySql, (err, result) => {
@@ -55,6 +57,7 @@ export default class Oracle {
     })
   }
 
+  // 更新
   update (tableName, keys, data, whereKey = 'id') {
     return new Promise((resolve, reject) => {
       const keysStr = keys.join(' = ?,') + ' = ?'
@@ -73,6 +76,7 @@ export default class Oracle {
     })
   }
 
+  // 获取表名
   async getTableName () {
     try {
       const res = await this.query(`SELECT TABLE_NAME FROM ALL_TABLES WHERE OWNER = '${this.form.connectString}'`)
@@ -90,6 +94,7 @@ export default class Oracle {
     }
   }
 
+  // 获取列名
   getColum (tabledName) {
     return new Promise((resolve, reject) => {
       this.connection.execute(`SELECT C.COLUMN_NAME FROM "SYS"."ALL_TAB_COLS" C WHERE C.USER_GENERATED = 'YES' AND C.OWNER = '${this.form.connectString}' AND C.TABLE_NAME = '${tabledName}' ORDER BY C.TABLE_NAME, C.COLUMN_ID ASC`, (err, res) => {
@@ -126,6 +131,7 @@ export default class Oracle {
     })
   }
 
+  // 批量插入
   async insertBatch (tabledName, keys, data) {
     const p = []
 
@@ -136,6 +142,7 @@ export default class Oracle {
     return Promise.all(p)
   }
 
+  // 获取全部数据
   selectAll (tabledName) {
     return new Promise((resolve, reject) => {
       this.connection.execute(`SELECT * FROM ${this.form.connectString}.${tabledName}`, (err, res) => {
@@ -148,6 +155,7 @@ export default class Oracle {
     })
   }
 
+  // 分页查询
   selectLimit (tabledName, pageNum, pageSize) {
     return new Promise((resolve, reject) => {
       this.connection.execute(`SELECT ${this.form.connectString}.${tabledName}.* FROM ${this.form.connectString}.${tabledName} OFFSET ${(pageNum - 1) * pageSize} ROWS FETCH NEXT ${pageSize} ROWS ONLY`, (err, res) => {
@@ -173,6 +181,7 @@ export default class Oracle {
     })
   }
 
+  // 获取条数
   getRows (tabledName) {
     return new Promise((resolve, reject) => {
       this.connection.execute(`SELECT COUNT(1) AS COUNT FROM ${this.form.connectString}.${tabledName}`, (err, res) => {

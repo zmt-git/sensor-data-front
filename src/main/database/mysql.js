@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-27 13:33:58
  * @LastEditors: zmt
- * @LastEditTime: 2021-11-05 09:16:47
+ * @LastEditTime: 2021-11-05 10:12:46
  */
 import { exportExcel, importExcel } from '../utils'
 
@@ -62,6 +62,7 @@ export default class MySQL {
     })
   }
 
+  // 更新
   update (tableName, keys, data, whereKey = 'id') {
     return new Promise((resolve, reject) => {
       const keysStr = keys.join(' = ?,') + ' = ?'
@@ -80,6 +81,7 @@ export default class MySQL {
     })
   }
 
+  // 获取表名
   async getTableName () {
     try {
       const res = await this.query('show tables')
@@ -97,6 +99,7 @@ export default class MySQL {
     }
   }
 
+  // 获取列名
   async getColum (tabledName) {
     return new Promise((resolve, reject) => {
       this.connection.query(`SHOW COLUMNS FROM ${tabledName}`, (err, res) => {
@@ -132,6 +135,7 @@ export default class MySQL {
     })
   }
 
+  // 批量插入
   insertBatch (tabledName, keys, data) {
     const sql = `INSERT INTO ${tabledName} (${keys.join(',')}) VALUES ?`
     return new Promise((resolve, reject) => {
@@ -145,6 +149,7 @@ export default class MySQL {
     })
   }
 
+  // 获取全部数据
   selectAll (tabledName) {
     return new Promise((resolve, reject) => {
       this.connection.query(`SELECT * FROM ${tabledName}`, (err, res) => {
@@ -157,6 +162,7 @@ export default class MySQL {
     })
   }
 
+  // 分页查询
   selectLimit (tabledName, pageNum, pageSize) {
     return new Promise((resolve, reject) => {
       this.connection.query(`SELECT * FROM ${tabledName} LIMIT ${(pageNum - 1) * pageSize}, ${pageSize}`, (err, res) => {
@@ -169,6 +175,7 @@ export default class MySQL {
     })
   }
 
+  // 获取条数
   getRows (tabledName) {
     return new Promise((resolve, reject) => {
       this.connection.query(`SELECT COUNT(1) AS COUNT FROM ${tabledName}`, (err, res) => {
