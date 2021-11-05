@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-10-08 13:48:42
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-09 11:28:45
+ * @LastEditTime: 2021-11-05 09:01:00
  */
 // {
 //   "type":"json",
@@ -13,6 +13,7 @@
 import { getDate, getDeviceCode } from '../utils/parse'
 const template = {
   time: '',
+  origin: '',
   deviceCode: '',
   type: 'json',
   column: { id: '', mode_num: '', sig_num: '' }
@@ -20,7 +21,7 @@ const template = {
 export function parseJsonLog (string) {
   template.time = new Date(getDate(string))
   template.deviceCode = getDeviceCode(string)
-
+  template.origin = string
   const info = string.split('：').pop()
   const body = JSON.parse(info)
   template.column.id = body.body.deviceCode

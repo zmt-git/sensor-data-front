@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-10-08 13:47:44
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-19 11:08:58
+ * @LastEditTime: 2021-11-05 09:19:52
  */
 // 选取目录 -> 获取目录.log文件 -> 读取文件
 // 读取文件 -> 按行读取 -> 解析
@@ -169,34 +169,35 @@ export default class ParseLog {
     }
   }
 
-  // todo 批量插入 改为 更新数据
   async intoDatabase (jsonStringArr) {
     if (!jsonStringArr || !Array.isArray(jsonStringArr) || jsonStringArr.length === 0) return
     try {
       const values = []
 
-      let keys = []
-
       jsonStringArr.forEach(jsonString => {
         const res = JSON.parse(jsonString)
 
-        const arr = []
+        const column = []
 
-        keys = Object.keys(res.column)
+        const keys = Object.keys(res.column)
 
         keys.forEach(item => {
-          arr.push(res.column[item])
+          column.push(res.column[item])
         })
 
-        arr.push(res.deviceCode)
+        const data = { column, keys }
 
-        values.push(arr)
+        // arr.push(res.deviceCode)
+
+        values.push(data)
       })
 
       while (values.length > 0) {
         const res = values.pop()
 
-        await this.sql.update(this.databaseForm.tableName, keys, res, 'code')
+        await this.sql.insertOne(this.databaseForm.tableName, res.keys, res.column)
+
+        // await this.sql.update(this.databaseForm.tableName, keys, res, 'code')
       }
     } catch (err) {
       const content = jsonStringArr.join('\n')

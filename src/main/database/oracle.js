@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-27 13:55:21
  * @LastEditors: zmt
- * @LastEditTime: 2021-11-03 16:58:21
+ * @LastEditTime: 2021-11-05 09:41:36
  */
 import { dialog } from 'electron'
 import { exportExcel, importExcel } from '../utils'
@@ -20,7 +20,14 @@ export default class Oracle {
       oracle.getConnection({
         user: this.form.user,
         password: this.form.password,
-        connectString: `${this.form.host}:${this.form.port || 1521}/${this.form.connectString}`
+        connectString: `(
+          DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=${this.form.host})(PORT=${this.form.port || 1521}))
+          (CONNECT_DATA=
+            (SERVER=DEDICATED)
+            (SERVICE_NAME=${this.form.serverName || 'XE'})
+          )
+        )`
+        // connectString: `${this.form.host}:${this.form.port || 1521}/${this.form.connectString}`
       }, (err, connection) => {
         if (err) {
           dialog.showMessageBoxSync({ message: err.message, type: 'error' })
@@ -68,12 +75,12 @@ export default class Oracle {
 
   async getTableName () {
     try {
-      const res = await this.query('select table_name from user_tables')
+      const res = await this.query(`SELECT TABLE_NAME FROM ALL_TABLES WHERE OWNER = '${this.form.connectString}'`)
 
       const result = []
-      // todo
-      res.forEach(item => {
-        result.push(item.Tables_in_test)
+
+      res.rows.forEach(item => {
+        result.push(...item)
       })
 
       return result
@@ -85,16 +92,14 @@ export default class Oracle {
 
   getColum (tabledName) {
     return new Promise((resolve, reject) => {
-      this.connection.execute(`select * from user_tab_columns where Table_Name=${tabledName}`, (err, res) => {
+      this.connection.execute(`SELECT C.COLUMN_NAME FROM "SYS"."ALL_TAB_COLS" C WHERE C.USER_GENERATED = 'YES' AND C.OWNER = '${this.form.connectString}' AND C.TABLE_NAME = '${tabledName}' ORDER BY C.TABLE_NAME, C.COLUMN_ID ASC`, (err, res) => {
         if (err) {
           console.error(err)
           reject(new Error(`获取${tabledName}列名失败`))
         }
-
         const arr = []
-        // todo
-        res.forEach(item => {
-          arr.push(item.Field)
+        res.rows.forEach(item => {
+          arr.push(...item)
         })
         resolve(arr)
       })
@@ -108,8 +113,10 @@ export default class Oracle {
    * @param {Array} data
    */
   insertOne (tabledName, keys, data) {
+    const key = keys.join(',').replace(/,/g, '","')
+
     return new Promise((resolve, reject) => {
-      this.connection.execute(`INSERT INTO ${tabledName} (${keys.join(',')}) VALUES (${data.join(',')})`, (err, res) => {
+      this.connection.execute(`INSERT INTO "${this.form.connectString}"."${tabledName}" ("${key}") VALUES (${data.join(',')})`, (err, res) => {
         if (err) {
           console.error(err)
           reject(new Error(`${tabledName}添加数据失败`))
@@ -119,51 +126,61 @@ export default class Oracle {
     })
   }
 
-  insertBatch (tabledName, keys, data) {
-    const sql = `INSERT INTO ${tabledName} (${keys.join(',')}) VALUES ?`
-    return new Promise((resolve, reject) => {
-      this.connection.execute(sql, [data], (err, res) => {
-        if (err) {
-          console.error(err)
-          reject(new Error(`${tabledName}批量添加数据失败`))
-        }
-        resolve(res)
-      })
+  async insertBatch (tabledName, keys, data) {
+    const p = []
+
+    data.forEach(item => {
+      p.push(this.insertOne(tabledName, keys, item))
     })
+
+    return Promise.all(p)
   }
 
   selectAll (tabledName) {
     return new Promise((resolve, reject) => {
-      this.connection.execute(`SELECT * FROM ${tabledName}`, (err, res) => {
+      this.connection.execute(`SELECT * FROM ${this.form.connectString}.${tabledName}`, (err, res) => {
         if (err) {
           console.error(err)
           reject(new Error(`${tabledName}获取数据失败`))
         }
-        resolve(res)
+        resolve(res.rows)
       })
     })
   }
 
   selectLimit (tabledName, pageNum, pageSize) {
     return new Promise((resolve, reject) => {
-      this.connection.execute(`SELECT * FROM ${tabledName} LIMIT ${(pageNum - 1) * pageSize}, ${pageSize}`, (err, res) => {
+      this.connection.execute(`SELECT ${this.form.connectString}.${tabledName}.* FROM ${this.form.connectString}.${tabledName} OFFSET ${(pageNum - 1) * pageSize} ROWS FETCH NEXT ${pageSize} ROWS ONLY`, (err, res) => {
         if (err) {
           console.error(err)
           reject(new Error(`${tabledName}分页获取数据失败`))
         }
-        resolve(res)
+        const rowNames = []
+        res.metaData.forEach(item => {
+          rowNames.push(item.name)
+        })
+        const result = []
+        res.rows.forEach(item => {
+          const obj = {}
+          item.forEach((el, index) => {
+            obj[rowNames[index]] = el
+          })
+          result.push(obj)
+        })
+
+        resolve(result)
       })
     })
   }
 
   getRows (tabledName) {
     return new Promise((resolve, reject) => {
-      this.connection.query(`SELECT COUNT(1) AS COUNT FROM ${tabledName}`, (err, res) => {
+      this.connection.execute(`SELECT COUNT(1) AS COUNT FROM ${this.form.connectString}.${tabledName}`, (err, res) => {
         if (err) {
           console.error(err)
           reject(new Error(`${tabledName}获取总条数数据失败`))
         }
-        resolve(res.COUNT)
+        resolve(res.rows.pop().pop())
       })
     })
   }
@@ -193,9 +210,9 @@ export default class Oracle {
     // 获取数据库列名
     try {
       const field = await this.getColum(tabledName)
-      field.result.forEach(item => {
+      field.forEach(item => {
         conf.cols.push({
-          caption: item.Field,
+          caption: item,
           type: 'string'
         })
       })
@@ -204,12 +221,8 @@ export default class Oracle {
 
       const data = await this.selectAll(tabledName)
 
-      data.result.forEach(item => {
-        const row = []
-        conf.cols.forEach(key => {
-          row.push(item[key.caption])
-        })
-        conf.rows.push(row)
+      data.forEach(item => {
+        conf.rows.push(item)
       })
 
       const res = await exportExcel(conf)

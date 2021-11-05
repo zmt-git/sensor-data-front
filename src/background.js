@@ -45,7 +45,11 @@ async function createWindow () {
   }
 
   try {
-    oracle.initOracleClient({ libDir: path.join(__dirname, 'instantclient_19_12') })
+    if (process.env.NODE_ENV === 'production') {
+      oracle.initOracleClient({ libDir: path.join(__dirname, 'instantclient_19_12') })
+    } else {
+      oracle.initOracleClient({ libDir: 'E:\\electron\\sensor-data-front\\public\\instantclient_19_12' })
+    }
   } catch (err) {
     dialog.showMessageBoxSync({ message: err.message, type: 'error' })
     dialog.showMessageBoxSync({ message: path.join(__dirname, 'instantclient_19_12'), type: 'error' })

@@ -3,11 +3,12 @@
  * @Author: zmt
  * @Date: 2021-09-29 08:57:28
  * @LastEditors: zmt
- * @LastEditTime: 2021-09-29 11:43:22
+ * @LastEditTime: 2021-11-04 15:28:32
 -->
 <template>
   <div class="d-sql-table">
      <el-table
+      :loading='loading'
       :data="tableData"
       size='mini'
       stripe
@@ -33,6 +34,10 @@ export default {
     tableData: {
       type: Array,
       default: () => []
+    },
+    loading: {
+      type: Boolean,
+      default: false
     }
   },
 

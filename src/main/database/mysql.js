@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-27 13:33:58
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-19 11:14:51
+ * @LastEditTime: 2021-11-05 09:16:47
  */
 import { exportExcel, importExcel } from '../utils'
 
@@ -122,7 +122,7 @@ export default class MySQL {
    */
   insertOne (tabledName, keys, data) {
     return new Promise((resolve, reject) => {
-      this.connection.query(`INSERT INTO ${tabledName} (${keys.join(',')}) VALUES (${data.join(',')})`, (err, res) => {
+      this.connection.query(`INSERT INTO ${tabledName} (${keys.join(',')}) VALUES ("${data.join(',').replace(/,/g, '","')}")`, (err, res) => {
         if (err) {
           console.error(err)
           reject(new Error(`${tabledName}添加数据失败`))

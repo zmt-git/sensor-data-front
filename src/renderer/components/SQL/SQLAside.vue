@@ -3,16 +3,18 @@
  * @Author: zmt
  * @Date: 2021-09-29 09:00:03
  * @LastEditors: zmt
- * @LastEditTime: 2021-11-01 16:53:49
+ * @LastEditTime: 2021-11-04 15:34:36
 -->
 <template>
-  <ul class="d-sql-aside" id="sqlAside">
-    <li class="d-sql-aside-li" :class="item === current ? 'active' : ''" v-for="item in list" :key="item.name" @click="onClick(item)">
-      <base-svg-icon iconName="icon-biaoge" font-size="14px"></base-svg-icon>
-      <span class="d-sql-aside-li__name">{{item}}</span>
+  <div class="container" v-loading='loading'>
+    <ul class="d-sql-aside" id="sqlAside">
+      <li class="d-sql-aside-li" :title="item" :class="item === current ? 'active' : ''" v-for="item in list" :key="item.name" @click="onClick(item)">
+        <base-svg-icon class="d-sql-aside-li__icon" iconName="icon-biaoge" font-size="14px"></base-svg-icon>
+        <span class="d-sql-aside-li__name">{{item}}</span>
       </li>
+    </ul>
     <div class="d-sql-aside-resize" id="resize">::</div>
-  </ul>
+  </div>
 </template>
 
 <script>
@@ -29,6 +31,10 @@ export default {
     current: {
       type: String,
       default: ''
+    },
+    loading: {
+      type: Boolean,
+      default: false
     }
   },
 
@@ -43,10 +49,14 @@ export default {
 
 <style lang="scss" scoped>
 @import '~@/styles/handle.scss';
-
+.container{
+  position: relative;
+  overflow: hidden;
+}
 .d-sql-aside{
+  height: 100%;
+  overflow: auto;
   min-width: 80px;
-  max-width: 200px;
   border-right: 1px solid #f0f0f0;
   display: flex;
   flex-direction: column;
@@ -59,9 +69,15 @@ export default {
     border-radius: 5px;
     transition: all 0.3s;
     margin-bottom: 5px;
+    display: flex;
+    align-items: center;
     &__name{
+      flex-shrink: 0;
       margin-left: 5px;
       font-size: 13px;
+    }
+    &__icon{
+      flex-shrink: 0;
     }
   }
   &-li:hover{

@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-27 14:13:59
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-29 15:25:51
+ * @LastEditTime: 2021-11-05 09:48:30
  */
 import { exportExcel, importExcel } from '../utils'
 const sqlite3 = require('sqlite3').verbose()
@@ -98,7 +98,7 @@ export default class SQLite {
    */
   insertOne (tabledName, keys, data) {
     return new Promise((resolve, reject) => {
-      this.connection.all(`INSERT INTO ${tabledName} (${keys.join(',')}) VALUES (${data.join(',')})`, (err, res) => {
+      this.connection.all(`INSERT INTO ${tabledName} ("${keys.join(',').replace(/,/g, '","')}") VALUES ("${data.join(',').replace(/,/g, '","')}")`, (err, res) => {
         if (err) {
           console.error(err)
           reject(new Error(`${tabledName}添加数据失败`))

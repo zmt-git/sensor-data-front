@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-10-08 09:17:40
  * @LastEditors: zmt
- * @LastEditTime: 2021-11-01 17:08:27
+ * @LastEditTime: 2021-11-04 16:42:08
 -->
 <template>
   <div class="d-update-data" v-loading='loading'>
@@ -53,23 +53,25 @@ export default {
         connectString: [{ required: true, message: '请输入链接字符串' }],
         tableName: [{ required: true, message: '请输入表名称' }]
       },
+      target: {
+        databaseType: 'Oracle',
+        host: '192.168.2.135',
+        port: '1521',
+        user: 'system',
+        password: '123456',
+        connectString: 'OUTLN',
+        tableName: 'TEST',
+        serverName: 'XE'
+      },
       source: {
         databaseType: 'MySQL',
-        host: '',
-        port: '',
-        user: '',
-        password: '',
-        connectString: '',
-        tableName: ''
-      },
-      target: {
-        databaseType: 'MySQL',
-        host: '',
-        port: '',
-        user: '',
-        password: '',
-        connectString: '',
-        tableName: ''
+        host: 'localhost',
+        port: '3306',
+        user: 'root',
+        password: '123456789',
+        connectString: 'test',
+        tableName: 'test',
+        serverName: ''
       },
       style: {
         width: '300px'

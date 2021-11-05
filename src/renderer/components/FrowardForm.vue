@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-10-13 09:11:56
  * @LastEditors: zmt
- * @LastEditTime: 2021-11-01 17:14:02
+ * @LastEditTime: 2021-11-04 16:26:07
 -->
 <template>
   <el-form :model='form' :rules="rules" ref='form'>
@@ -61,8 +61,17 @@
           class="el-input__inner-radius"
           v-model="form.connectString "
           :style="style"
-          placeholder="链接字符串"></el-input>
+          :placeholder="isSQLite ? '文件地址' : '数据库名'"></el-input>
       </div>
+    </el-form-item>
+    <el-form-item prop="serverName" v-if="isOracle">
+      <el-input
+        ref='connectString'
+        v-model="form.serverName"
+        autocomplete="off"
+        class="el-input__inner-radius"
+        :style='style'
+        placeholder="服务名"></el-input>
     </el-form-item>
     <el-form-item prop="tableName">
       <el-input
@@ -101,6 +110,9 @@ export default {
 
     isSQLite () {
       return this.form.databaseType === 'SQLite'
+    },
+    isOracle () {
+      return this.form.databaseType === 'Oracle'
     }
   },
 

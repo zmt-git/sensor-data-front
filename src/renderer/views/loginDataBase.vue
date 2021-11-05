@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-26 16:28:18
  * @LastEditors: zmt
- * @LastEditTime: 2021-11-01 17:01:37
+ * @LastEditTime: 2021-11-04 16:26:18
 -->
 <template>
   <div class="login-data-base" v-loading='loading'>
@@ -45,7 +45,7 @@
           :style='style'
           placeholder='密码'></el-input>
       </el-form-item>
-       <el-form-item prop="connectString">
+      <el-form-item prop="connectString">
         <div @click="openFileDB">
           <el-input
             ref='connectString'
@@ -53,8 +53,17 @@
             autocomplete="off"
             class="el-input__inner-radius"
             :style='style'
-            :placeholder="!isSQLite ? '链接字符串' : '文件地址'"></el-input>
+            :placeholder="!isSQLite ? '数据库名' : '文件地址'"></el-input>
           </div>
+      </el-form-item>
+      <el-form-item prop="serverName" v-if="isOracle">
+        <el-input
+          ref='connectString'
+          v-model="ruleForm.serverName"
+          autocomplete="off"
+          class="el-input__inner-radius"
+          :style='style'
+          placeholder="服务名"></el-input>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" :disabled='disabled' @click="submitForm()" class="width-100">登录</el-button>
@@ -91,6 +100,10 @@ export default {
 
     isSQLite () {
       return this.currentDataBase === 'SQLite'
+    },
+
+    isOracle () {
+      return this.currentDataBase === 'Oracle'
     }
   },
 
@@ -102,14 +115,16 @@ export default {
         port: [{ required: true, message: '请输入端口' }],
         user: [{ required: true, message: '请输入用户名' }],
         password: [{ required: true, message: '请输入密码' }],
-        connectString: [{ required: true, message: '请输入链接字符串' }]
+        connectString: [{ required: true, message: '请输入链接字符串' }],
+        serverName: [{ required: true, message: '请输入服务名' }]
       },
       ruleForm: {
-        host: '',
-        port: '',
-        user: '',
-        password: '',
-        connectString: ''
+        host: '192.168.2.135',
+        port: '1521',
+        user: 'system',
+        password: '123456',
+        connectString: 'OUTLN',
+        serverName: 'XE'
       },
       style: {
         width: '300px'
@@ -151,6 +166,12 @@ export default {
       } catch (e) {
         console.error(e)
       }
+    }
+  },
+
+  watch: {
+    '$route' (to, from) {
+      this.$refs.ruleForm.resetFields()
     }
   }
 }

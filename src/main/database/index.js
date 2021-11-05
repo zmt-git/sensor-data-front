@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-28 09:56:26
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-29 15:18:17
+ * @LastEditTime: 2021-11-04 14:52:02
  */
 import MySQL from './mysql'
 import Oracle from './oracle'
@@ -64,8 +64,8 @@ export async function getTableName (params) {
 export async function getTableData (params) {
   try {
     const { type, tableName, pageNum, pageSize } = params
-    const res = await sql[type].selectLimit(tableName, pageNum, pageSize)
     const count = await sql[type].getRows(tableName)
+    const res = await sql[type].selectLimit(tableName, pageNum, pageSize)
     return { records: res, total: count }
   } catch (e) {
     throw new Error(e)

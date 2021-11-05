@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-10-08 13:48:13
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-09 11:25:18
+ * @LastEditTime: 2021-11-05 09:01:18
  */
 import { getDate, getDeviceCode } from '../utils/parse'
 // {
@@ -14,6 +14,7 @@ import { getDate, getDeviceCode } from '../utils/parse'
 // }
 const template = {
   time: '',
+  origin: '',
   deviceCode: '',
   type: 'string',
   column: { battery_voltage: 0, power_voltage: 1, motherboard_temperature: 5 }
@@ -22,6 +23,7 @@ const template = {
 export function parseStringLog (string) {
   template.time = new Date(getDate(string))
   template.deviceCode = getDeviceCode(string)
+  template.origin = string
   const body = string.split('：').pop().split(',')
   body.shift()
   body.pop()

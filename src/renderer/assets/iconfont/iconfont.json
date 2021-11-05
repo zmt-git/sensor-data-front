@@ -6,6 +6,13 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "2325935",
+      "name": "同步",
+      "font_class": "tongbu1",
+      "unicode": "e642",
+      "unicode_decimal": 58946
+    },
+    {
       "icon_id": "18260244",
       "name": "日志解析服务icon",
       "font_class": "rizhijiexifuwuicon",

@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-09-29 09:02:28
  * @LastEditors: zmt
- * @LastEditTime: 2021-10-29 15:29:36
+ * @LastEditTime: 2021-11-04 15:23:31
 -->
 <template>
   <div class="d-sql" @mouseup="onCancelMove">
@@ -13,10 +13,10 @@
       @refresh='onRefresh'
     ></SQL-header>
     <section ref='section' class="d-sql-section" @mousedown="onStartMove">
-      <SQL-aside :list='tableList' :current='currentTableName' @onClick='onCurrentTable'></SQL-aside>
+      <SQL-aside :loading='asideLoading' :list='tableList' :current='currentTableName' @onClick='onCurrentTable'></SQL-aside>
       <main class="d-sql-section-main">
         <SQL-query v-model="statement"></SQL-query>
-        <SQL-table :tableData="tableData"></SQL-table>
+        <SQL-table :tableData="tableData" :loading='tableLoading'></SQL-table>
         <SQL-footer :pageNum='pageNum' :total="total" :pageSize="pageSize" @handleSizeChange='handleSizeChange' @handleCurrentChange='handleCurrentChange'></SQL-footer>
       </main>
     </section>
@@ -43,6 +43,8 @@ export default {
 
   data () {
     return {
+      asideLoading: false,
+      tableLoading: false,
       statement: '',
       tableList: [],
       tableData: [],
@@ -73,16 +75,19 @@ export default {
 
     // ==========获取表名数据==========
     async onShowTables () {
+      this.asideLoading = true
       try {
         const res = await ipcSend({ sign: 'database/getTableName', params: { type: this.currentDataBase } })
         this.tableList = res
       } catch (e) {
         console.error(e)
       }
+      this.asideLoading = false
     },
 
     // ==========获取指定表数据==========
     async getTableData () {
+      this.tableLoading = true
       try {
         const res = await ipcSend({ sign: 'database/getTableData', params: { type: this.currentDataBase, tableName: this.currentTableName, pageNum: this.pageNum, pageSize: this.pageSize } })
         this.tableData = res.records
@@ -90,6 +95,7 @@ export default {
       } catch (e) {
         console.error(e)
       }
+      this.tableLoading = false
     },
 
     // ==========刷新表list数据==========
@@ -153,7 +159,6 @@ export default {
   height: 100%;
   display: flex;
   flex-direction: column;
-  overflow: auto;
   &-section{
     flex: 1;
     overflow: auto;
@@ -163,6 +168,7 @@ export default {
       height: 100%;
       display: flex;
       flex-direction: column;
+      overflow: hidden;
     }
   }
 }

@@ -1,8 +1,8 @@
 @font-face {
   font-family: "iconfont"; /* Project id 2835106 */
-  src: url('iconfont.woff2?t=1634112348605') format('woff2'),
-       url('iconfont.woff?t=1634112348605') format('woff'),
-       url('iconfont.ttf?t=1634112348605') format('truetype');
+  src: url('iconfont.woff2?t=1635995978787') format('woff2'),
+       url('iconfont.woff?t=1635995978787') format('woff'),
+       url('iconfont.ttf?t=1635995978787') format('truetype');
 }
 
 .iconfont {
@@ -11,6 +11,10 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-tongbu1:before {
+  content: "\e642";
 }
 
 .icon-rizhijiexifuwuicon:before {
