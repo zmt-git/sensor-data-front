@@ -3,7 +3,7 @@
  * @Author: zmt
  * @Date: 2021-10-08 13:47:44
  * @LastEditors: zmt
- * @LastEditTime: 2021-11-05 10:09:25
+ * @LastEditTime: 2021-11-05 10:29:22
  */
 // 选取目录 -> 获取目录.log文件 -> 读取文件
 // 读取文件 -> 按行读取 -> 解析
@@ -160,7 +160,11 @@ export default class ParseLog {
   exportTxt (jsonStringArr) {
     const filename = this.base.exportDirectory ? this.base.exportDirectory : `${config.savePath}/${config.logFileName}.txt`
 
-    const content = jsonStringArr.join('\n')
+    let content = ''
+
+    jsonStringArr.forEach(item => {
+      content += '\n' + item.origin
+    })
     try {
       if (!fs.existsSync(config.savePath)) {
         fs.mkdirSync(config.savePath)
@@ -171,9 +175,9 @@ export default class ParseLog {
     } catch (e) {
       console.error(e)
 
-      fs.appendFileSync(`/${path.join(__dirname, config.logFileName)}.txt`, `\n${content}`)
+      fs.appendFileSync(`/${path.join(__dirname, config.logFileName)}.log`, `\n${content}`)
 
-      throw new Error(`导出文件${config.savePath}路径不存在, 请查看/${path.join(__dirname, config.logFileName)}.txt文件`)
+      throw new Error(`导出文件${config.savePath}路径不存在, 请查看/${path.join(__dirname, config.logFileName)}.log文件`)
     }
   }
 
@@ -209,13 +213,16 @@ export default class ParseLog {
         // await this.sql.update(this.databaseForm.tableName, keys, res, 'code')
       }
     } catch (err) {
-      const content = jsonStringArr.join('\n')
+      let content = ''
+      jsonStringArr.forEach(item => {
+        content += '\n' + item.origin
+      })
       try {
         if (!fs.existsSync(config.savePath)) {
           fs.mkdirSync(config.savePath)
-          fs.appendFileSync(`${config.savePath}/unInsertData-log.txt`, content)
+          fs.appendFileSync(`${config.savePath}/unInsertData-log.log`, content)
         } else {
-          fs.appendFileSync(`${config.savePath}/unInsertData-log.txt`, content)
+          fs.appendFileSync(`${config.savePath}/unInsertData-log.log`, content)
         }
       } catch (err) {
         fs.appendFileSync(`/${path.join(__dirname, 'unInsertData-log')}.txt`, content)
